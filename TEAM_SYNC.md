@@ -191,3 +191,13 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
   4. Updated `frontend/src/App.jsx` to route `/trips` directly to `<TripListing />`.
 - **Why it was changed:** To replace the placeholder Screen 6 with a full-featured, pistachio-themed travel dashboard connecting user trips to Dev-03's builder and Dev-04's timeline view.
 - **Git Status:** Resolved merge cleanly across `TEAM_SYNC.md`. Tested locally with 0 errors. Ready to commit/push.
+
+### 24. 2026-08-22 | Developer/Agent Name: Done by Dev1
+- **What was done:**
+  1. Built **Screen 5: Itinerary Builder (`frontend/src/pages/ItineraryBuilder.jsx`)** with a responsive split-screen layout (Left: Timeline & Stop List, Right: Sticky Interactive OpenStreetMap).
+  2. Built a centered **Activity & City Search Modal Overlay** triggered by `+ Add Stop / Activity` with category filters (*Sightseeing*, *Food & Dining*, *Amusement & Parks*, *Culture & Art*) and live scraper backend integration.
+  3. Updated `MapTracker.jsx` to render point-to-point **Polyline travel routes** connecting added stops in sequence.
+  4. Synced trip context (dates, starting place, and `{ city, country }` destination objects) with Dev-03's `CreateTrip`.
+- **Why it was changed:** To deliver Screen 5 as specified in the hackathon wireframe with real-time route visualization and centered search modal.
+- **Git Status:** Tested with `npm run build` (0 errors). Ready to push.
+
