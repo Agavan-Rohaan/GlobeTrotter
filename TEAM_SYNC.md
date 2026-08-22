@@ -88,3 +88,9 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace placeholder screens with complete, production-ready Login and Registration flows connected directly to the Express backend API following the flat `pages/` refactoring.
 - **Git Status:** Completed locally and merged cleanly with Dev1's global design system updates.
 
+### 10. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:** Added `/login` (LOGIN) and `/register` (REGISTER / Sign Up) routes to the global navigation bar in `frontend/src/components/Navbar.jsx`. Added visual active-route highlighting and action buttons.
+- **Why it was changed:** To allow users to navigate directly to the Login and Registration screens from any page in the application.
+- **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
+
+

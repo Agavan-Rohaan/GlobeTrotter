@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Compass, Sparkles, User, Plus, Search, Globe, Phone, Mail, Heart } from 'lucide-react';
+import { Compass, Sparkles, User, Plus, Search, Globe, Phone, Mail, Heart, UserPlus } from 'lucide-react';
+
 
 export default function Navbar() {
   const location = useLocation();
@@ -79,32 +80,55 @@ export default function Navbar() {
           >
             ITINERARY BUILDER
           </Link>
+          <Link
+            to="/login"
+            className={`text-sm font-semibold tracking-wide transition-colors ${
+              isActive('/login')
+                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                : 'text-slate-600 hover:text-pistachio-700'
+            }`}
+          >
+            LOGIN
+          </Link>
+          <Link
+            to="/register"
+            className={`text-sm font-semibold tracking-wide transition-colors ${
+              isActive('/register')
+                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                : 'text-slate-600 hover:text-pistachio-700'
+            }`}
+          >
+            REGISTER
+          </Link>
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
-            to="/trips"
-            className="p-2 text-slate-600 hover:text-pistachio-700 hover:bg-pistachio-50 rounded-full transition-all"
-            title="Saved Itineraries"
+            to="/login"
+            className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all ${
+              isActive('/login')
+                ? 'bg-pistachio-100 text-pistachio-800 font-bold'
+                : 'text-slate-700 hover:text-pistachio-700 hover:bg-pistachio-50'
+            }`}
           >
-            <Heart size={19} />
+            Log In
           </Link>
 
           <Link
-            to="/"
-            className="p-2 text-slate-600 hover:text-pistachio-700 hover:bg-pistachio-50 rounded-full transition-all"
-            title="Account Profile"
+            to="/register"
+            className="inline-flex items-center gap-1.5 bg-pistachio-700 hover:bg-pistachio-800 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-soft hover:shadow-lifted transition-all transform hover:-translate-y-0.5"
           >
-            <User size={19} />
+            <UserPlus size={16} />
+            <span>Sign Up</span>
           </Link>
 
           <Link
             to="/create"
-            className="inline-flex items-center gap-2 bg-pistachio-700 hover:bg-pistachio-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-soft hover:shadow-lifted transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+            className="hidden sm:inline-flex items-center gap-2 border border-pistachio-600 text-pistachio-800 hover:bg-pistachio-50 text-sm font-semibold px-4 py-2 rounded-xl transition-all"
           >
             <Plus size={16} className="stroke-[2.5]" />
-            <span>Plan New Trip</span>
+            <span>Plan Trip</span>
           </Link>
         </div>
       </nav>
