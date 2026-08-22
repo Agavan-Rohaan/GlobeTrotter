@@ -17,16 +17,22 @@ export default function Login() {
     }
   }, [navigate]);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e, directEmail, directPassword) => {
     if (e) e.preventDefault();
     setError('');
     setLoading(true);
 
+    const loginEmail = directEmail || email;
+    const loginPassword = directPassword || password;
+
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
+      const response = await axios.post(`${apiUrl}/api/auth/login`, { 
+        email: loginEmail, 
+        password: loginPassword 
+      });
       
-      const { user, token } = response.data;
+      const { token, ...user } = response.data;
       
       if (user.role !== 'admin') {
         setError('Forbidden: Administrator privileges required to access this portal.');
@@ -47,10 +53,7 @@ export default function Login() {
   const handleDevBypass = () => {
     setEmail('admin@globetrotter.com');
     setPassword('admin123');
-    setTimeout(() => {
-      const form = document.getElementById('login-form');
-      if (form) form.requestSubmit();
-    }, 100);
+    handleLogin(null, 'admin@globetrotter.com', 'admin123');
   };
 
   return (
