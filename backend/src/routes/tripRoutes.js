@@ -6,7 +6,7 @@ const { protect } = require('../middleware/authMiddleware');
 // Get all trips for logged in user
 router.get('/', protect, async (req, res) => {
   try {
-    const trips = await Trip.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const trips = await Trip.find({ user_id: req.user._id }).sort({ createdAt: -1 });
     res.json(trips);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -15,15 +15,16 @@ router.get('/', protect, async (req, res) => {
 
 // Create a trip
 router.post('/', protect, async (req, res) => {
-  const { name, description, startDate, endDate, stops } = req.body;
+  const { name, description, startDate, endDate, coverPhoto } = req.body;
   try {
     const trip = new Trip({
-      user: req.user._id,
+      user_id: req.user._id,
       name,
       description,
       startDate,
       endDate,
-      stops: stops || []
+      coverPhoto,
+      collaborators: [req.user._id] // Owner is first collaborator
     });
     const createdTrip = await trip.save();
     res.status(201).json(createdTrip);

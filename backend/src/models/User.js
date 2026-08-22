@@ -5,6 +5,12 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  profilePhoto: { type: String }, // Dropbox URL
+  preferences: {
+    language: { type: String, default: 'en' },
+    currency: { type: String, default: 'USD' }
+  }
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
