@@ -6,10 +6,18 @@
 > 
 > **Format Requirements:**
 > - **Date & Time**
-> - **Developer/Agent Name:** (You MUST explicitly state who you are, e.g., "Done by Dev1", "Done by Dev4", or "Done by Antigravity AI")
+> - **Developer/Agent Name:** (You MUST explicitly state who you are, e.g., "Done by Dev1", "Done by Dev4")
 > - **What was done:** (Be highly specific about which components, routes, or files were touched)
 > - **Why it was changed:** (Rationale for design/architecture decisions)
 > - **Git Status:** (Did you commit? Did you merge? Were there conflicts?)
+> 
+> ---
+> **🤖 AI-SPECIFIC INSTRUCTIONS (READ CAREFULLY):**
+> If you are an AI assistant helping a developer on this project, you must figure out which Dev number your human is (Dev1, Dev2, Dev3, or Dev4). 
+> **DO NOT** sign this log using your own model name (e.g. do not write "Done by ChatGPT", "Done by Claude", or "Done by Antigravity AI"). 
+> You MUST adopt the persona of your human's Dev number. For example, if your human is working on the Login screen, you are Dev2. You must sign the log as: `Developer/Agent Name: Done by Dev2`.
+> Do not make the mistake of breaking this format!
+> ---
 > 
 > **Git Conflict Protocol:**
 > If you pull from `main` and encounter a merge conflict, do NOT force push. You must read the conflicting files, carefully resolve the markers `<<<<<<<`, prioritize the backend architecture if it conflicts with UI mockups, and run `npm run build` locally before pushing the resolved merge.
