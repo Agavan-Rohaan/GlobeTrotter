@@ -5,6 +5,9 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const tripRoutes = require('./routes/tripRoutes');
 const scraperRoutes = require('./routes/scraperRoutes');
+const destinationRoutes = require('./routes/destinationRoutes');
+const placeRoutes = require('./routes/placeRoutes');
+const itineraryEventRoutes = require('./routes/itineraryEventRoutes');
 
 dotenv.config();
 
@@ -33,6 +36,9 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/destinations', destinationRoutes);
+app.use('/api/places', placeRoutes);
+app.use('/api/events', itineraryEventRoutes);
 app.use('/api/scrape', scraperRoutes);
 
 app.get('/api/health', (req, res) => {
