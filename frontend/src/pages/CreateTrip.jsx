@@ -13,6 +13,22 @@ export default function CreateTrip() {
   const [errors, setErrors] = useState({});
   const [tripDuration, setTripDuration] = useState(0);
 
+  const CITY_DB = [
+    { name: 'Paris', country: 'France', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
+    { name: 'Tokyo', country: 'Japan', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
+    { name: 'Bali', country: 'Indonesia', cost: '💰💰', pop: '⭐⭐⭐⭐⭐' },
+    { name: 'Rome', country: 'Italy', cost: '💰💰💰', pop: '⭐⭐⭐⭐' },
+    { name: 'New York', country: 'USA', cost: '💰💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
+    { name: 'Bangkok', country: 'Thailand', cost: '💰', pop: '⭐⭐⭐⭐' },
+    { name: 'Barcelona', country: 'Spain', cost: '💰💰💰', pop: '⭐⭐⭐⭐' },
+    { name: 'Dubai', country: 'UAE', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐' },
+    { name: 'London', country: 'UK', cost: '💰💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
+    { name: 'Ahmedabad', country: 'India', cost: '💰', pop: '⭐⭐' }
+  ];
+  
+  const [citySearchQuery, setCitySearchQuery] = useState('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
   // Stop state
   const [isAddingStop, setIsAddingStop] = useState(false);
   const [editingStopId, setEditingStopId] = useState(null);
@@ -108,6 +124,7 @@ export default function CreateTrip() {
 
   const handleEditStop = (stop) => {
     setStopForm({ city: stop.city, country: stop.country, arrivalDate: stop.arrivalDate, departureDate: stop.departureDate });
+    setCitySearchQuery(stop.city);
     setEditingStopId(stop.id);
     setIsAddingStop(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -315,13 +332,49 @@ export default function CreateTrip() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Destination / City</label>
-                  <input type="text" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400" value={stopForm.city} onChange={e => setStopForm({...stopForm, city: e.target.value})} placeholder="e.g. Ahmedabad" />
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400" 
+                    value={citySearchQuery} 
+                    onChange={e => {
+                      setCitySearchQuery(e.target.value);
+                      setStopForm({...stopForm, city: e.target.value});
+                      setShowCityDropdown(true);
+                    }} 
+                    onFocus={() => setShowCityDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
+                    placeholder="e.g. Paris" 
+                  />
+                  {showCityDropdown && citySearchQuery && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-pistachio-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                      {CITY_DB.filter(c => c.name.toLowerCase().includes(citySearchQuery.toLowerCase())).map((city, idx) => (
+                        <div 
+                          key={idx}
+                          className="px-4 py-3 hover:bg-pistachio-50 cursor-pointer border-b border-slate-50 last:border-0 flex justify-between items-center"
+                          onClick={() => {
+                            setCitySearchQuery(city.name);
+                            setStopForm({...stopForm, city: city.name, country: city.country});
+                            setShowCityDropdown(false);
+                          }}
+                        >
+                          <div>
+                            <span className="font-bold text-slate-800 block">{city.name}</span>
+                            <span className="text-xs text-slate-500">{city.country}</span>
+                          </div>
+                          <div className="text-right text-xs">
+                            <span className="block text-slate-600">{city.pop}</span>
+                            <span className="block">{city.cost}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Country</label>
-                  <input type="text" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400" value={stopForm.country} onChange={e => setStopForm({...stopForm, country: e.target.value})} placeholder="e.g. India" />
+                  <input type="text" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400" value={stopForm.country} onChange={e => setStopForm({...stopForm, country: e.target.value})} placeholder="e.g. France" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Arrival Date</label>

@@ -117,6 +117,18 @@ export default function TripListing() {
     }
   };
 
+  const handleToggleShare = async (id, currentStatus) => {
+    try {
+      if (!id.startsWith('demo-')) {
+        await api.put(`/trips/${id}/share`);
+      }
+      setTrips(trips.map(t => t._id === id ? { ...t, isPublic: !currentStatus } : t));
+      showToast(currentStatus ? 'Trip is now private.' : 'Trip shared to Community!');
+    } catch (err) {
+      console.error('Failed to toggle share:', err);
+    }
+  };
+
   // Compute Trip Status dynamically based on dates if not provided
   const getTripStatus = (trip) => {
     if (trip.status) return trip.status;
@@ -430,6 +442,20 @@ export default function TripListing() {
 
                   {/* Action Buttons */}
                   <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+                    {/* Make Public / Share */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleShare(trip._id, trip.isPublic)}
+                      className={`h-9 w-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                        trip.isPublic 
+                          ? 'border-pistachio-600 text-pistachio-700 bg-pistachio-50' 
+                          : 'border-slate-200 hover:border-pistachio-600 text-slate-400 hover:text-pistachio-700 hover:bg-pistachio-50'
+                      }`}
+                      title={trip.isPublic ? "Unshare from Community" : "Share to Community"}
+                    >
+                      <Share2 size={14} />
+                    </button>
+
                     {/* Open Itinerary Builder (Dev-03) */}
                     <button
                       type="button"

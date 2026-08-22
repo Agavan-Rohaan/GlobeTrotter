@@ -68,6 +68,17 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To provide a perfect starting point for the other developers. They can now simply open their assigned placeholder file and start coding their UI without needing to touch `App.jsx` or worry about routing conflicts.
 - **Git Status:** Committed and pushed to `main`.
 
+### [2026-08-22] - Log #23 - Master Plan Final Features
+* **Developer/Agent Name:** Done by Dev3
+* **What was done:** 
+  - **Feature 5:** Built a gorgeous Drag-and-Drop `ItineraryBuilder.jsx` using `@hello-pangea/dnd` to allow users to visually drag AI scraped places onto specific trip days.
+  - **Feature 7:** Upgraded `CreateTrip.jsx` with a Command Palette style Rich City Search, featuring curated global cities with cost indices and popularity scores.
+  - **Feature 11:** Connected `CommunityTab.jsx` to a new public backend route (`GET /api/trips/public`). Added a "Share to Community" toggle button in `TripListing.jsx`.
+* **Why it was changed:** To ensure all features requested in the hackathon PDF are fully functional and integrated with the backend.
+* **Git Status:** 100% Hackathon PDF Requirements Completed. Committed and pushed to `main`.
+
+---
+
 ### 7. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** Refactored `frontend/src/pages/` by moving all 13 components out of the `Dev1/`, `Dev2/`, `Dev3/`, and `Dev4/` subdirectories into the flat `pages/` directory. Deleted the subdirectories. Updated `App.jsx` to remove the `DevX` routing paths and removed the "DevX:" label from the navigation links.
 - **Why it was changed:** The isolated Dev folder structure was deemed unprofessional for the final repository. We will track assignments internally via communication rather than enforcing it in the file structure.
