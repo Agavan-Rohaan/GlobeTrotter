@@ -175,6 +175,14 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace the static dummy admin wireframe with a fully functional, protected, and data-driven monitoring solution for the application.
 - **Git Status:** Built successfully (`npm run build`). Pushed to `main`.
 
+### 22. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** 
+  1. Built the "Intelligent Scraper Engine" by completely rewriting `backend/src/routes/scraperRoutes.js` (`/api/scrape/magic-build`) to scrape WikiVoyage top attractions to avoid 429 Bot Blocks.
+  2. Bound the backend scraper output to automatically insert `Places` directly into the MongoDB database tied to a `Trip` ID.
+  3. Built the "Magic Ideas Board" UI component in `frontend/src/pages/ItineraryView.jsx` (Screen 9) which allows users to trigger the scraper and instantly visualize scraped POIs.
+- **Why it was changed:** To shift the app direction to a "Magic Aggregator". Users no longer have to manually research their trips; the app scrapes the best things to do and builds the Ideas Board for them automatically.
+- **Git Status:** Tested backend endpoint internally via `verifyMagicScraper.js` and verified frontend Vite build (0 errors). Pushed to `main`.
+
 ### 22. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** 
   1. Polished `UserProfile.jsx` UI and micro-animations to align 100% with Dev1's Pistachio & Cream luxury design system.

@@ -1,22 +1,13 @@
-const express = require('express');
-const router = express.Router();
 const axios = require('axios');
 const cheerio = require('cheerio');
-
+require('dotenv').config();
 const mongoose = require('mongoose');
-const Place = require('../models/Place');
+const Place = require('./src/models/Place');
 
-// POST /api/scrape/magic-build
-// Scrapes top attractions for a query and saves them to a specific Trip
-router.post('/magic-build', async (req, res) => {
-  const { query, tripId } = req.body;
-  
-  if (!query || !tripId) {
-    return res.status(400).json({ message: 'Please provide both query and tripId in the body' });
-  }
-
+async function testScraper(query) {
+  console.log(`Starting scrape for: ${query}`);
   try {
-    // 1. Get the sections of the page from WikiVoyage
+    // 1. Get the sections of the page
     const sectionsUrl = `https://en.wikivoyage.org/w/api.php?action=parse&page=${encodeURIComponent(query)}&prop=sections&format=json`;
     const sectionsResponse = await axios.get(sectionsUrl, {
       headers: { 'User-Agent': 'GlobeTrotterTravelApp/1.0' }
@@ -26,7 +17,8 @@ router.post('/magic-build', async (req, res) => {
     const seeSection = sections.find(s => s.line === 'See' || s.line === 'Landmarks');
     
     if (!seeSection) {
-      return res.status(404).json({ message: 'No major attractions found for this destination.' });
+      console.log('No "See" section found on Wikivoyage for this query.');
+      return;
     }
 
     // 2. Get the HTML content of the "See" section
@@ -36,22 +28,21 @@ router.post('/magic-build', async (req, res) => {
     });
 
     const html = contentResponse.data?.parse?.text?.['*'];
-    if (!html) {
-      return res.status(500).json({ message: 'Failed to extract content.' });
-    }
+    if (!html) return;
 
     // 3. Parse the HTML using Cheerio to extract the listings (vcard)
     const $ = cheerio.load(html);
     const results = [];
+    const dummyTripId = new mongoose.Types.ObjectId();
 
     $('.vcard').each((i, el) => {
-      if (i < 10) { // Limit to top 10 magic places
+      if (i < 10) {
         const name = $(el).find('.listing-name').text().trim() || $(el).find('b').first().text().trim();
         const description = $(el).find('.listing-content').text().trim() || $(el).text().replace(name, '').trim().substring(0, 150) + '...';
         
         if (name) {
           results.push({
-            trip_id: tripId,
+            trip_id: dummyTripId,
             name,
             notes: description,
             category: 'Sightseeing'
@@ -60,22 +51,20 @@ router.post('/magic-build', async (req, res) => {
       }
     });
 
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Could not parse attractions.' });
-    }
-
-    // 4. Save automatically to the database
+    console.log(`Extracted ${results.length} POIs. Attempting DB insertion...`);
+    
+    // Test DB Insertion
+    await mongoose.connect(process.env.MONGO_URI);
     const savedPlaces = await Place.insertMany(results);
+    console.log(`✅ Successfully saved ${savedPlaces.length} places into MongoDB!`);
 
-    res.status(201).json({
-      message: `Successfully aggregated and saved ${savedPlaces.length} attractions to your trip!`,
-      places: savedPlaces
-    });
+    // Clean up
+    await Place.deleteMany({ trip_id: dummyTripId });
+    await mongoose.disconnect();
     
   } catch (error) {
-    console.error("Magic Scraper error:", error.message);
-    res.status(500).json({ message: 'Failed to build magic itinerary.' });
+    console.error('Scraping error:', error.message);
   }
-});
+}
 
-module.exports = router;
+testScraper('Paris');
