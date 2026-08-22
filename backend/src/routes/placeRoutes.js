@@ -152,13 +152,23 @@ router.post('/', protect, async (req, res) => {
     const trip = await Trip.findOne({ _id: trip_id, user_id: req.user._id });
     if (!trip) return res.status(404).json({ message: 'Trip not found' });
 
+    const categoryMap = {
+      'Food & Dining': 'Food',
+      'Amusement & Parks': 'Other',
+      'Culture & Art': 'Sightseeing',
+      Sightseeing: 'Sightseeing'
+    };
+    const normalizedCoordinates = Array.isArray(coordinates)
+      ? coordinates
+      : coordinates?.coordinates;
+
     const place = new Place({
       trip_id,
       destination_id,
-      category,
+      category: categoryMap[category] || category || 'Other',
       name,
       address,
-      coordinates,
+      coordinates: normalizedCoordinates,
       images,
       website,
       notes

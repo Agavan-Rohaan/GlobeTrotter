@@ -8,58 +8,6 @@ import {
 import api from '../services/api';
 import { formatPrice } from '../utils/currency';
 
-// High-fidelity fallback trips if backend database is fresh or user not logged in
-const DEMO_TRIPS = [
-  {
-    _id: 'demo-1',
-    name: 'Mediterranean Summer Grand Tour',
-    description: 'Scenic exploration of coastal France, Italian vineyards, and Spanish historic quarters.',
-    startDate: '2026-07-10T00:00:00.000Z',
-    endDate: '2026-07-24T00:00:00.000Z',
-    status: 'Upcoming',
-    coverImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
-    destinations: [
-      { name: 'Nice', country: 'France' },
-      { name: 'Florence', country: 'Italy' },
-      { name: 'Barcelona', country: 'Spain' }
-    ],
-    totalBudget: 3400,
-    currency: 'USD'
-  },
-  {
-    _id: 'demo-2',
-    name: 'Cherry Blossom Journey & Kyoto Temples',
-    description: 'Spring adventure immersing in Tokyo culture, Kyoto ancient shrines, and Mount Fuji.',
-    startDate: '2026-03-25T00:00:00.000Z',
-    endDate: '2026-04-06T00:00:00.000Z',
-    status: 'Ongoing',
-    coverImage: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop',
-    destinations: [
-      { name: 'Tokyo', country: 'Japan' },
-      { name: 'Kyoto', country: 'Japan' },
-      { name: 'Osaka', country: 'Japan' }
-    ],
-    totalBudget: 2850,
-    currency: 'USD'
-  },
-  {
-    _id: 'demo-3',
-    name: 'Swiss Alps & Bavarian Castles',
-    description: 'Winter wonderland through Interlaken peaks, Zurich lake, and Munich historic breweries.',
-    startDate: '2025-12-15T00:00:00.000Z',
-    endDate: '2025-12-23T00:00:00.000Z',
-    status: 'Completed',
-    coverImage: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=1200&auto=format&fit=crop',
-    destinations: [
-      { name: 'Zurich', country: 'Switzerland' },
-      { name: 'Interlaken', country: 'Switzerland' },
-      { name: 'Munich', country: 'Germany' }
-    ],
-    totalBudget: 2100,
-    currency: 'USD'
-  }
-];
-
 export default function TripListing() {
   const navigate = useNavigate();
   const [trips, setTrips] = useState([]);
@@ -82,11 +30,11 @@ export default function TripListing() {
       if (res.data && Array.isArray(res.data) && res.data.length > 0) {
         setTrips(res.data);
       } else {
-        setTrips(DEMO_TRIPS);
+        setTrips([]);
       }
     } catch (err) {
-      console.warn('Backend trips API error, loading demo trips:', err);
-      setTrips(DEMO_TRIPS);
+      console.warn('Backend trips API error:', err);
+      setTrips([]);
     } finally {
       setLoading(false);
     }

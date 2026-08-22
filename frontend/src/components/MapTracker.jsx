@@ -1,52 +1,66 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-// User's Active Geoapify API Key for Vector Tiles & Map Styles
+// User's Active Geoapify API Key
 const GEOAPIFY_API_KEY = '25a9bf719b2f4498af3127866d28febf';
 
 export default function MapTracker({ locations }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+  const initialLocationsRef = useRef(validLocations);
+  const [mapError, setMapError] = useState(null);
 
   // Normalize valid numeric coordinates
-  const validLocations = (locations || [])
+  const validLocations = useMemo(() => (locations || [])
     .map((loc) => {
       const parsedLat = typeof loc.lat === 'number' ? loc.lat : parseFloat(loc.lat);
       const parsedLng = typeof loc.lng === 'number' ? loc.lng : parseFloat(loc.lng);
-      return {
-        ...loc,
-        lat: parsedLat,
-        lng: parsedLng
-      };
+      return { ...loc, lat: parsedLat, lng: parsedLng };
     })
-    .filter((loc) => !isNaN(loc.lat) && !isNaN(loc.lng) && loc.lat !== 0 && loc.lng !== 0);
+    .filter((loc) => !isNaN(loc.lat) && !isNaN(loc.lng) && loc.lat !== 0 && loc.lng !== 0), [locations]);
 
   // Initialize MapLibre GL Map with Geoapify Map Style
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const initialCenter = validLocations.length > 0 
-      ? [validLocations[0].lng, validLocations[0].lat] 
+    setMapError(null);
+
+    const initialLocations = initialLocationsRef.current;
+    const initialCenter = initialLocations.length > 0 
+      ? [initialLocations[0].lng, initialLocations[0].lat] 
       : [2.3522, 48.8566];
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${GEOAPIFY_API_KEY}`,
       center: initialCenter,
-      zoom: validLocations.length > 1 ? 6 : 12
+      zoom: initialLocations.length > 1 ? 6 : 12
     });
 
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
     mapInstanceRef.current = map;
 
-    // Trigger canvas resize after mount for flexbox containers
-    setTimeout(() => {
+    const handleMapError = (event) => {
+      const message = event?.error?.message || 'The map could not load.';
+      setMapError(message);
+    };
+    map.on('error', handleMapError);
+
+    // Resize map canvas when container dimensions initialize
+    map.on('load', () => {
+      map.resize();
+    });
+
+    const handleResize = () => {
       if (map) map.resize();
-    }, 200);
+    };
+    window.addEventListener('resize', handleResize);
 
     return () => {
+      window.removeEventListener('resize', handleResize);
+      map.off('error', handleMapError);
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -61,7 +75,11 @@ export default function MapTracker({ locations }) {
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    if (validLocations.length === 0) return;
+    if (validLocations.length === 0) {
+      if (map.getLayer('route-line')) map.removeLayer('route-line');
+      if (map.getSource('route')) map.removeSource('route');
+      return;
+    }
 
     // Create Geoapify Map Markers & Custom Popups
     validLocations.forEach((loc, idx) => {
@@ -88,6 +106,12 @@ export default function MapTracker({ locations }) {
 
     // Add or Update GeoJSON Polyline Route for Point-to-Point travel
     const updateRoute = () => {
+      if (!map.isStyleLoaded()) return;
+      if (validLocations.length < 2) {
+        if (map.getLayer('route-line')) map.removeLayer('route-line');
+        if (map.getSource('route')) map.removeSource('route');
+        return;
+      }
       const routeCoordinates = validLocations.map((loc) => [loc.lng, loc.lat]);
 
       const geojsonData = {
@@ -133,16 +157,21 @@ export default function MapTracker({ locations }) {
       }
     };
 
-    if (map.isStyleLoaded()) {
-      updateRoute();
-    } else {
-      map.once('load', updateRoute);
-    }
-  }, [locations]);
+    if (map.isStyleLoaded()) updateRoute();
+    else map.once('load', updateRoute);
+  }, [validLocations]);
 
   return (
-    <div className="h-full min-h-[480px] w-full rounded-3xl overflow-hidden border border-pistachio-200/80 shadow-soft relative">
-      <div ref={mapContainerRef} className="h-full w-full absolute inset-0" />
+    <div className="h-[480px] min-h-[480px] w-full rounded-3xl overflow-hidden border border-pistachio-200/80 shadow-soft relative">
+      <div ref={mapContainerRef} className="h-full w-full min-h-[480px]" />
+      {mapError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-50/95 p-6 text-center">
+          <div>
+            <p className="font-semibold text-slate-800">Map unavailable</p>
+            <p className="mt-1 text-xs text-slate-500">Check the Geoapify key or network connection.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

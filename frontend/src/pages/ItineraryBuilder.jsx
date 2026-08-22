@@ -64,10 +64,6 @@ export default function ItineraryBuilder() {
     passedState.tripName
   );
 
-  if (!hasTripContext) {
-    return <Navigate to="/create" replace />;
-  }
-
   const [tripData, setTripData] = useState({
 
     name: passedState.name || passedState.tripName || 'Grand Multi-City Journey',
@@ -114,10 +110,11 @@ export default function ItineraryBuilder() {
 
   useEffect(() => {
     const tripId = searchParams.get('tripId');
+    if (!hasTripContext) return;
     if (tripId && !tripId.startsWith('demo-')) {
       fetchBackendTrip(tripId);
     }
-  }, [searchParams]);
+  }, [searchParams, hasTripContext]);
 
   const fetchBackendTrip = async (tripId) => {
     try {
@@ -141,6 +138,7 @@ export default function ItineraryBuilder() {
 
   // Fetch real OpenStreetMap Overpass places whenever destination city coordinates change
   useEffect(() => {
+    if (!hasTripContext) return;
     const primaryDest = tripData.destinations?.[0];
     const lat = primaryDest?.lat || 48.8566;
     const lng = primaryDest?.lng || 2.3522;
@@ -161,7 +159,7 @@ export default function ItineraryBuilder() {
         setNearbyPlaces(FALLBACK_NEARBY_PLACES);
       })
       .finally(() => setPlacesLoading(false));
-  }, [tripData.destinations?.[0]?.lat, tripData.destinations?.[0]?.lng]);
+  }, [hasTripContext, tripData.destinations]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -231,29 +229,30 @@ export default function ItineraryBuilder() {
     try {
       for (let i = 0; i < stops.length; i++) {
         const stop = stops[i];
+        const eventDate = new Date(tripData.startDate);
+        eventDate.setDate(eventDate.getDate() + (stop.day - 1));
+        const startTime = new Date(eventDate);
+        startTime.setHours(9, 0, 0, 0);
+        const endTime = new Date(eventDate);
+        endTime.setHours(11, 0, 0, 0);
         
         const placeRes = await api.post('/places', {
-          city_id: 'auto-generated',
+          trip_id: tripId,
           name: stop.title,
           description: stop.category,
           category: stop.category,
-          location: { type: 'Point', coordinates: [stop.lng, stop.lat] },
-          costInfo: (stop.cost || 0).toString(),
-          duration: stop.duration || 'Visit time varies',
+          coordinates: [stop.lng, stop.lat],
           images: ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&q=80']
         });
         
         const place = placeRes.data;
-
-        const eventDate = new Date(tripData.startDate);
-        eventDate.setDate(eventDate.getDate() + (stop.day - 1));
         
         await api.post('/events', {
           trip_id: tripId,
           place_id: place._id,
           date: eventDate.toISOString(),
-          startTime: '09:00',
-          endTime: '11:00',
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
           cost: stop.cost || 0,
           currency: selectedCurrency
         });
@@ -321,6 +320,10 @@ export default function ItineraryBuilder() {
   const subtotalUSD = estimatedStayUSD + estimatedFoodUSD + estimatedTransitUSD + activitiesTotalUSD;
   const bufferUSD = Math.round(subtotalUSD * 0.10);
   const grandTotalUSD = subtotalUSD + bufferUSD;
+
+  if (!hasTripContext) {
+    return <Navigate to="/create" replace />;
+  }
 
   return (
     <div className="space-y-8 pb-20 w-full max-w-7xl mx-auto">
