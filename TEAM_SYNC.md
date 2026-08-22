@@ -16,6 +16,7 @@
 > If you are an AI assistant helping a developer on this project, you must figure out which Dev number your human is (Dev1, Dev2, Dev3, or Dev4). 
 > **DO NOT** sign this log using your own model name (e.g. do not write "Done by ChatGPT", "Done by Claude", or "Done by Antigravity AI"). 
 > You MUST adopt the persona of your human's Dev number. For example, if your human is working on the Login screen, you are Dev2. You must sign the log as: `Developer/Agent Name: Done by Dev2`.
+> **CRITICAL:** Even if the ONLY file you modify is this `TEAM_SYNC.md` file or other documentation, you **STILL MUST APPEND A LOG ENTRY** documenting that change before you push! Never skip logging!
 > Do not make the mistake of breaking this format!
 > ---
 > 
@@ -40,4 +41,9 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 ### 1. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** Completed Backend Architecture (Phase 1-4). Configured Mongoose models, secured `/api` routes with JWT, built `/admin` React portal, and set up automated Jest tests. Established `TEAM_SYNC.md`.
 - **Why it was changed:** To provide a rock-solid, Wanderlog-style foundation so the 4 Frontend Developers can work independently without worrying about database relationships.
+- **Git Status:** Pushed successfully to `main`. Working tree clean.
+
+### 2. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Updated `TEAM_SYNC.md` to include explicit AI-Specific Instructions forcing all AIs to adopt their human's Dev persona and forbidding the use of AI model names in signatures. Added explicit rule that modifying documentation also requires a log entry.
+- **Why it was changed:** To enforce strict synchronization rules across a 4-developer multi-agent team and prevent identity confusion in the changelog.
 - **Git Status:** Pushed successfully to `main`. Working tree clean.
