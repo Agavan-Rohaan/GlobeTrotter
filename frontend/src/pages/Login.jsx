@@ -31,8 +31,8 @@ export default function Login() {
       'user',
       JSON.stringify({
         _id: 'dev-123',
-        name: 'Dev User (Dev Mode)',
-        email: 'dev@globetrotter.travel',
+        name: 'MeetRaval91',
+        email: 'hetalraval1209@gmail.com',
         role: 'admin',
       })
     );
@@ -40,6 +40,7 @@ export default function Login() {
     window.dispatchEvent(new Event('auth-change'));
     navigate('/dashboard');
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

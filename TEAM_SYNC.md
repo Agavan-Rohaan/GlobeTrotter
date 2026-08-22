@@ -150,3 +150,12 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To deliver Screen 12 user profile & preferences functionality under the Pistachio & Cream design system with Dropbox photo link compatibility.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
 
+### 19. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:** 
+  1. Created a dedicated **User Profile Icon Button** in `frontend/src/components/Navbar.jsx` rendering the user's avatar image or icon and name (`MeetRaval91`).
+  2. Replaced static "Dev User (Dev Mode)" label across `Navbar.jsx`, `Login.jsx`, and `Registration.jsx` with developer identity `MeetRaval91`.
+  3. Verified clicking the User Profile Icon Button redirects logged-in users directly to `/profile`.
+- **Why it was changed:** To replace static dev placeholders with an interactive User Profile Avatar button linking to Screen 12 under `MeetRaval91`.
+- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
+
+

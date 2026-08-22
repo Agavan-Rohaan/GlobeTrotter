@@ -21,14 +21,15 @@ export default function Registration() {
       'user',
       JSON.stringify({
         _id: 'dev-123',
-        name: 'Dev User (Dev Mode)',
-        email: 'dev@globetrotter.travel',
+        name: 'MeetRaval91',
+        email: 'hetalraval1209@gmail.com',
         role: 'admin',
       })
     );
     window.dispatchEvent(new Event('auth-change'));
     navigate('/dashboard');
   };
+
 
   const handleSignUpWithEmail = async (e) => {
     e.preventDefault();
