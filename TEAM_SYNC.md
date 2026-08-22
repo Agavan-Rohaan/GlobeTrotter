@@ -29,7 +29,7 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 
 ## CHANGELOG
 
-### 2026-08-22 | Developer/Agent Name: Done by Antigravity AI (Architect)
+### 1. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** Completed Backend Architecture (Phase 1-4). Configured Mongoose models, secured `/api` routes with JWT, built `/admin` React portal, and set up automated Jest tests. Established `TEAM_SYNC.md`.
 - **Why it was changed:** To provide a rock-solid, Wanderlog-style foundation so the 4 Frontend Developers can work independently without worrying about database relationships.
 - **Git Status:** Pushed successfully to `main`. Working tree clean.
