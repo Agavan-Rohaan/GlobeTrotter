@@ -67,3 +67,8 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Created empty placeholder React components for all of Dev1, Dev2, and Dev3's assigned screens in their respective isolated folders (`pages/Dev1/`, `pages/Dev2/`, `pages/Dev3/`). Updated `App.jsx` to import all placeholders and set up their routes.
 - **Why it was changed:** To provide a perfect starting point for the other developers. They can now simply open their assigned placeholder file and start coding their UI without needing to touch `App.jsx` or worry about routing conflicts.
 - **Git Status:** Committed and pushed to `main`.
+
+### 7. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Refactored `frontend/src/pages/` by moving all 13 components out of the `Dev1/`, `Dev2/`, `Dev3/`, and `Dev4/` subdirectories into the flat `pages/` directory. Deleted the subdirectories. Updated `App.jsx` to remove the `DevX` routing paths and removed the "DevX:" label from the navigation links.
+- **Why it was changed:** The isolated Dev folder structure was deemed unprofessional for the final repository. We will track assignments internally via communication rather than enforcing it in the file structure.
+- **Git Status:** Committed and pushed to `main`.

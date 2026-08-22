@@ -1,20 +1,17 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-// Dev1
-import LandingPage from './pages/Dev1/LandingPage';
-import TripListing from './pages/Dev1/TripListing';
-import UserProfile from './pages/Dev1/UserProfile';
-// Dev2
-import Login from './pages/Dev2/Login';
-import Registration from './pages/Dev2/Registration';
-// Dev3
-import CreateTrip from './pages/Dev3/CreateTrip';
-import ItineraryBuilder from './pages/Dev3/ItineraryBuilder';
-import ActivitySearch from './pages/Dev3/ActivitySearch';
-// Dev4
-import ItineraryView from './pages/Dev4/ItineraryView';
-import CommunityTab from './pages/Dev4/CommunityTab';
-import CalendarView from './pages/Dev4/CalendarView';
+
+import LandingPage from './pages/LandingPage';
+import TripListing from './pages/TripListing';
+import UserProfile from './pages/UserProfile';
+import Login from './pages/Login';
+import Registration from './pages/Registration';
+import CreateTrip from './pages/CreateTrip';
+import ItineraryBuilder from './pages/ItineraryBuilder';
+import ActivitySearch from './pages/ActivitySearch';
+import ItineraryView from './pages/ItineraryView';
+import CommunityTab from './pages/CommunityTab';
+import CalendarView from './pages/CalendarView';
 
 function App() {
   return (
@@ -31,9 +28,9 @@ function App() {
                 <Link to="/trips" className="text-gray-500 hover:text-indigo-600 font-medium">My Trips</Link>
                 <Link to="/create-trip" className="text-gray-500 hover:text-indigo-600 font-medium">Create Trip</Link>
                 <Link to="/itinerary-builder" className="text-gray-500 hover:text-indigo-600 font-medium">Builder</Link>
-                <Link to="/itinerary/123" className="text-indigo-600 font-medium border-b-2 border-indigo-600">Dev4: Itinerary</Link>
-                <Link to="/community" className="text-indigo-600 font-medium border-b-2 border-indigo-600">Dev4: Community</Link>
-                <Link to="/calendar" className="text-indigo-600 font-medium border-b-2 border-indigo-600">Dev4: Calendar</Link>
+                <Link to="/itinerary/123" className="text-indigo-600 font-medium border-b-2 border-indigo-600">Itinerary</Link>
+                <Link to="/community" className="text-indigo-600 font-medium border-b-2 border-indigo-600">Community</Link>
+                <Link to="/calendar" className="text-indigo-600 font-medium border-b-2 border-indigo-600">Calendar</Link>
               </div>
             </div>
           </div>
