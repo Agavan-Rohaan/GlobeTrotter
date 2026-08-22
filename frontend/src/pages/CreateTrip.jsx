@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { MapPin, Calendar, ArrowRight, ArrowDown } from 'lucide-react';
 import api from '../services/api';
 
 export default function CreateTrip() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
-  const [tripName, setTripName] = useState('');
+  // Extract pre-filled destination carried over from Dashboard search or URL
+  const passedState = location.state || {};
+  const queryDest = searchParams.get('destination') || searchParams.get('to') || searchParams.get('city') || '';
+  const initialTo = passedState.toCity || queryDest || '';
+
+  const [tripName, setTripName] = useState(initialTo ? `${initialTo} Journey` : '');
   const [fromLocation, setFromLocation] = useState('');
   const [fromCoords, setFromCoords] = useState(null);
-  const [toLocation, setToLocation] = useState('');
-  const [toCoords, setToCoords] = useState(null);
-  const [toCountry, setToCountry] = useState('France');
+  const [toLocation, setToLocation] = useState(initialTo);
+  const [toCoords, setToCoords] = useState(
+    passedState.lat && passedState.lng ? { lat: passedState.lat, lng: passedState.lng } : null
+  );
+  const [toCountry, setToCountry] = useState(passedState.toCountry || '');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   
@@ -26,6 +35,36 @@ export default function CreateTrip() {
   const [toResults, setToResults] = useState([]);
   const [toLoading, setToLoading] = useState(false);
   const [showToDropdown, setShowToDropdown] = useState(false);
+
+  // Sync carried over search query if location or query params change
+  useEffect(() => {
+    const dest = passedState.toCity || searchParams.get('destination') || searchParams.get('to') || searchParams.get('city');
+    if (dest && dest !== toLocation) {
+      setToLocation(dest);
+      if (!tripName) setTripName(`${dest} Journey`);
+      if (passedState.lat && passedState.lng) {
+        setToCoords({ lat: passedState.lat, lng: passedState.lng });
+      }
+      if (passedState.toCountry) {
+        setToCountry(passedState.toCountry);
+      }
+    }
+  }, [location.state, searchParams]);
+
+  // Geocode TO location if no coordinates were passed directly
+  useEffect(() => {
+    if (toLocation && !toCoords && toLocation.trim().length >= 2) {
+      api.get(`/places/cities/search?q=${encodeURIComponent(toLocation)}`)
+        .then((res) => {
+          if (res.data && res.data.length > 0) {
+            const city = res.data[0];
+            setToCoords({ lat: city.lat, lng: city.lng });
+            if (city.country) setToCountry(city.country);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [toLocation, toCoords]);
 
   // Debounced Nominatim search for FROM location
   useEffect(() => {
@@ -108,7 +147,7 @@ export default function CreateTrip() {
         startingPlace: fromLocation,
         startDate,
         endDate,
-        destinations: [{ city: toLocation, country: toCountry }]
+        destinations: [{ city: toLocation, country: toCountry || 'Country' }]
       });
       if (res.data && res.data._id) {
         createdTripId = res.data._id;
@@ -129,7 +168,7 @@ export default function CreateTrip() {
         destinations: [
           {
             city: toLocation,
-            country: toCountry,
+            country: toCountry || 'Country',
             lat: defaultToLat,
             lng: defaultToLng
           }
@@ -230,10 +269,11 @@ export default function CreateTrip() {
                 <input 
                   type="text" 
                   className="w-full pl-12 pr-4 py-3 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" 
-                  placeholder="Search destination city (e.g. Rome, Italy)" 
+                  placeholder="Search destination city (e.g. Surat, India)" 
                   value={toLocation}
                   onChange={(e) => {
                     setToLocation(e.target.value);
+                    setToCoords(null);
                     setShowToDropdown(true);
                   }}
                   onFocus={() => setShowToDropdown(true)}

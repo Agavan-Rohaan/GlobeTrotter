@@ -168,6 +168,30 @@ export default function ItineraryBuilder() {
     showToast(`Added "${newStop.title}" to itinerary!`);
   };
 
+  // Helper to add custom typed activity from search box
+  const handleAddCustomActivity = (title) => {
+    if (!title.trim()) return;
+
+    const primaryDest = tripData.destinations?.[0] || { city: 'Paris', country: 'France', lat: 48.8566, lng: 2.3522 };
+
+    const newStop = {
+      id: `stop-${Date.now()}`,
+      title: title.trim(),
+      city: primaryDest.city,
+      country: primaryDest.country,
+      category: selectedCategory !== 'All' ? selectedCategory : 'Sightseeing',
+      cost: 0,
+      duration: 'Visit time varies',
+      lat: primaryDest.lat || 48.8566,
+      lng: primaryDest.lng || 2.3522,
+      day: stops.length + 1
+    };
+
+    setStops((prev) => [...prev, newStop]);
+    showToast(`Added custom activity "${newStop.title}"!`);
+    setSearchQuery('');
+  };
+
   const handleRemoveStop = (id) => {
     setStops((prev) => prev.filter((s) => s.id !== id));
     showToast('Stop removed from itinerary');
@@ -220,11 +244,20 @@ export default function ItineraryBuilder() {
     }
   };
 
-  // Filter Modal Activities against live nearbyPlaces & search query
+  // Smart Filter for Modal Activities
+  const primaryCityName = (tripData.destinations?.[0]?.city || '').toLowerCase().trim();
+
   const displayedModalActivities = nearbyPlaces.filter((act) => {
     const matchesCategory = selectedCategory === 'All' || act.category === selectedCategory;
-    const matchesSearch = !searchQuery || act.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    
+    if (!searchQuery.trim()) return matchesCategory;
+
+    const q = searchQuery.toLowerCase().trim();
+    // If search term matches the destination city name (e.g. "surat"), show all city POIs!
+    const matchesCity = primaryCityName && (primaryCityName.includes(q) || q.includes(primaryCityName));
+    const matchesNameOrCat = act.name.toLowerCase().includes(q) || (act.category && act.category.toLowerCase().includes(q));
+
+    return matchesCategory && (matchesNameOrCat || matchesCity);
   });
 
   // Grouping helper
@@ -451,7 +484,7 @@ export default function ItineraryBuilder() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search places by name (e.g. Museum, Park, Cafe)..."
+                  placeholder="Search activity name (e.g. Museum, Park, Beach)..."
                   className="w-full bg-slate-50 border border-slate-200 focus:border-pistachio-600 focus:bg-white pl-10 pr-4 py-2.5 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
                 />
               </div>
@@ -491,8 +524,26 @@ export default function ItineraryBuilder() {
               ))}
             </div>
 
+            {/* Custom Activity Action Card if user typed a search term */}
+            {searchQuery.trim().length > 0 && (
+              <div className="bg-pistachio-50 border border-pistachio-200 p-3 rounded-2xl flex items-center justify-between gap-3">
+                <div className="text-xs">
+                  <span className="font-bold text-pistachio-950 block">Add custom spot: "{searchQuery.trim()}"</span>
+                  <span className="text-slate-500">Add to {tripData.destinations?.[0]?.city || 'itinerary'} stop timeline</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAddCustomActivity(searchQuery)}
+                  className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1 shrink-0 cursor-pointer shadow-soft"
+                >
+                  <Plus size={14} className="stroke-[3]" />
+                  <span>Add Custom</span>
+                </button>
+              </div>
+            )}
+
             {/* Modal Content Scroll Area */}
-            <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pr-1 max-h-[420px]">
+            <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pr-1 max-h-[380px]">
               
               {placesLoading && (
                 <div className="text-center py-10 text-slate-400 text-xs">
@@ -507,13 +558,20 @@ export default function ItineraryBuilder() {
               )}
 
               {!placesLoading && !placesError && displayedModalActivities.length === 0 && (
-                <div className="text-center py-10 text-slate-400 text-xs italic">
-                  No places found matching your search or category filter.
+                <div className="text-center py-8 text-slate-500 text-xs space-y-2">
+                  <p className="italic">No existing spots matching "{searchQuery}".</p>
+                  <button
+                    type="button"
+                    onClick={() => handleAddCustomActivity(searchQuery)}
+                    className="inline-flex items-center gap-1.5 bg-pistachio-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-soft hover:bg-pistachio-800 transition-all cursor-pointer"
+                  >
+                    <Plus size={14} /> Add "{searchQuery}" as Custom Activity
+                  </button>
                 </div>
               )}
 
               {/* UNGROUPED VIEW */}
-              {!placesLoading && !placesError && groupBy === 'None' && (
+              {!placesLoading && !placesError && groupBy === 'None' && displayedModalActivities.length > 0 && (
                 <div className="space-y-3">
                   {displayedModalActivities.map((item) => (
                     <div
@@ -555,7 +613,7 @@ export default function ItineraryBuilder() {
               )}
 
               {/* GROUPED BY CATEGORY VIEW */}
-              {!placesLoading && !placesError && groupBy === 'Category' && (
+              {!placesLoading && !placesError && groupBy === 'Category' && displayedModalActivities.length > 0 && (
                 <div className="space-y-6">
                   {Object.keys(groupedActivities).map((catName) => (
                     <div key={catName} className="space-y-3">
