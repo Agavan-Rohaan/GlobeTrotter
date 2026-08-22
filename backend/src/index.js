@@ -9,6 +9,7 @@ const destinationRoutes = require('./routes/destinationRoutes');
 const placeRoutes = require('./routes/placeRoutes');
 const itineraryEventRoutes = require('./routes/itineraryEventRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/places', placeRoutes);
 app.use('/api/events', itineraryEventRoutes);
 app.use('/api/scrape', scraperRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'API is running...' });

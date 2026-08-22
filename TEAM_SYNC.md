@@ -110,16 +110,22 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To satisfy the spec requirements for 1-click developer bypass, user profile navigation from dashboard/navbar, and standard unauthenticated redirection.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly.
 
-<<<<<<< HEAD
 ### 13. 2026-08-22 | Developer/Agent Name: Done by Dev3
 - **What was done:** Built Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`). Implemented two-column responsive layout, advanced state management for stops, dynamic route visualization, date logic/validation, and live trip summary following the Pistachio design system.
 - **Why it was changed:** To allow users to create the base structure of their trip (name, dates, starting point, and stops) which will later connect to Itinerary Builder activities.
 - **Git Status:** Verified locally with `oxlint` (0 errors). Ready to push.
-=======
-### 13. 2026-08-22 | Developer/Agent Name: Done by Dev4
+
+### 14. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** 
   1. Configured the Dropbox `ACCESS_TOKEN` in the backend `.env` file to prepare for image upload functionality (Trip Covers, Profile Photos).
   2. Installed `leaflet` and `react-leaflet` in the frontend and imported the required CSS.
 - **Why it was changed:** To finalize the setup for all required 3rd party integrations (Storage and Maps) before diving deep into complex component logic. Leaflet was chosen over Mapbox to keep the project 100% free with no API keys.
 - **Git Status:** Rebased and merged successfully. Pushed to `main`.
->>>>>>> 550c155e425286eee27963bc528fe852a9f6ac4e
+
+### 15. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** 
+  1. Built Backend Dropbox Integration: Created `backend/src/routes/uploadRoutes.js` utilizing `multer` for memory buffering and `dropbox` SDK for direct-to-cloud uploads. Generates `?raw=1` shared links. Mounted to `POST /api/upload`.
+  2. Built Frontend Maps Integration: Created a reusable `MapTracker.jsx` component utilizing `react-leaflet` with OpenStreetMap tiles. 
+  3. Redesigned `ItineraryView.jsx` (Screen 9) to implement Dev1's Pistachio & Cream design system. Embedded the `MapTracker` to visualize the mock itinerary events.
+- **Why it was changed:** To finalize the foundational integrations as planned, giving all developers a plug-and-play image upload endpoint and an interactive map component.
+- **Git Status:** Committed and pushed to `main`.
