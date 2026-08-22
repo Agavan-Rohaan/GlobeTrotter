@@ -52,3 +52,8 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Created `README.md` in the root directory. Added project mission, live demo URLs, tech stack, and instructions for local setup.
 - **Why it was changed:** The repository lacked a master README. This provides a professional front-page for the GitHub repository and helps onboard developers faster.
 - **Git Status:** Committed and pushed to `main`.
+
+### 4. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Removed the "Contributing (TEAM_SYNC Protocol)" section from the public `README.md`.
+- **Why it was changed:** To prevent exposing the internal AI multi-agent workflow to the public or hackathon judges on the repository's front page.
+- **Git Status:** Committed and pushed to `main`.
