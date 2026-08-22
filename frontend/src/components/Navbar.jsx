@@ -78,7 +78,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white shadow-xs">
       {/* Top Micro Contact Bar */}
-      <div className="bg-pistachio-900 text-pistachio-200 text-xs px-6 py-1.5 flex justify-between items-center border-b border-pistachio-800/40">
+      {/* <div className="bg-pistachio-900 text-pistachio-200 text-xs px-6 py-1.5 flex justify-between items-center border-b border-pistachio-800/40">
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
             <Phone size={12} className="text-pistachio-400" />
@@ -106,7 +106,7 @@ export default function Navbar() {
             ENG (USD)
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Navigation Bar */}
       <nav className="bg-white border-b border-pistachio-100 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all">
