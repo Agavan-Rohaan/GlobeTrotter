@@ -134,3 +134,14 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Updated `PROJECT_CONTEXT.md` to reflect the newly created `/api/upload` route and explicitly note the requirement of `DROPBOX_ACCESS_TOKEN` in the `backend/.env` file.
 - **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
 - **Git Status:** Committed and pushed to `main`.
+
+### 17. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:** 
+  1. Built out **User Profile / Settings Screen (Screen 12)** in `frontend/src/pages/UserProfile.jsx` following the hackathon wireframe spec (Screen 7).
+  2. Implemented profile details editing (Name, Email, Dropbox profile photo URL, Language & Currency preferences).
+  3. Added **Preplanned Trips** and **Previous Trips** grids with direct `View` links (`/itinerary/:id`) as specified in the wireframe diagram.
+  4. Added **Saved Destinations & Bookmarks** list and Account Delete double-confirmation modal.
+  5. Built backend profile endpoints in `backend/src/routes/authRoutes.js` (`GET /api/auth/profile`, `PUT /api/auth/profile`, `DELETE /api/auth/profile`).
+- **Why it was changed:** To deliver Screen 12 user profile & preferences functionality under the Pistachio & Cream design system with Dropbox photo link compatibility.
+- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
+
