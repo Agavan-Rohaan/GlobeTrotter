@@ -121,24 +121,19 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To satisfy the spec requirements for 1-click developer bypass, user profile navigation from dashboard/navbar, and standard unauthenticated redirection.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly.
 
-### 13. 2026-08-22 | Developer/Agent Name: Done by Dev4
+### 13. 2026-08-22 | Developer/Agent Name: Done by Dev3
+- **What was done:** Built Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`). Implemented two-column responsive layout, advanced state management for stops, dynamic route visualization, date logic/validation, and live trip summary following the Pistachio design system.
+- **Why it was changed:** To allow users to create the base structure of their trip (name, dates, starting point, and stops) which will later connect to Itinerary Builder activities.
+- **Git Status:** Verified locally with `oxlint` (0 errors). Ready to push.
+
+### 14. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** 
   1. Configured the Dropbox `ACCESS_TOKEN` in the backend `.env` file to prepare for image upload functionality (Trip Covers, Profile Photos).
   2. Installed `leaflet` and `react-leaflet` in the frontend and imported the required CSS.
 - **Why it was changed:** To finalize the setup for all required 3rd party integrations (Storage and Maps) before diving deep into complex component logic. Leaflet was chosen over Mapbox to keep the project 100% free with no API keys.
 - **Git Status:** Rebased and merged successfully. Pushed to `main`.
 
-### 14. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** Updated `PROJECT_CONTEXT.md` to reflect the newly created `/api/upload` route and explicitly note the requirement of `DROPBOX_ACCESS_TOKEN` in the `backend/.env` file.
-- **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
-- **Git Status:** Committed and pushed to `main`.
-
 ### 15. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** Added `DROPBOX_ACCESS_TOKEN` to the `envVars` list for `globetrotter-backend` in `render.yaml`.
-- **Why it was changed:** To ensure the automatic Render deployment pipeline expects the new Dropbox authentication token. Set to `sync: false` to keep the raw secret out of GitHub.
-- **Git Status:** Committed and pushed to `main`.
-
-### 16. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** 
   1. Built Backend Dropbox Integration: Created `backend/src/routes/uploadRoutes.js` utilizing `multer` for memory buffering and `dropbox` SDK for direct-to-cloud uploads. Generates `?raw=1` shared links. Mounted to `POST /api/upload`.
   2. Built Frontend Maps Integration: Created a reusable `MapTracker.jsx` component utilizing `react-leaflet` with OpenStreetMap tiles. 
@@ -146,7 +141,17 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To finalize the foundational integrations as planned, giving all developers a plug-and-play image upload endpoint and an interactive map component.
 - **Git Status:** Committed and pushed to `main`.
 
-### 17. 2026-08-22 | Developer/Agent Name: Done by Dev2
+### 16. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Updated `PROJECT_CONTEXT.md` to reflect the newly created `/api/upload` route and explicitly note the requirement of `DROPBOX_ACCESS_TOKEN` in the `backend/.env` file.
+- **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
+- **Git Status:** Committed and pushed to `main`.
+
+### 17. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Added `DROPBOX_ACCESS_TOKEN` to the `envVars` list for `globetrotter-backend` in `render.yaml`.
+- **Why it was changed:** To ensure the automatic Render deployment pipeline expects the new Dropbox authentication token. Set to `sync: false` to keep the raw secret out of GitHub.
+- **Git Status:** Committed and pushed to `main`.
+
+### 18. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** 
   1. Built out **User Profile / Settings Screen (Screen 12)** in `frontend/src/pages/UserProfile.jsx` following the hackathon wireframe spec (Screen 7).
   2. Implemented profile details editing (Name, Email, Dropbox profile photo URL, Language & Currency preferences).
@@ -156,7 +161,7 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To deliver Screen 12 user profile & preferences functionality under the Pistachio & Cream design system with Dropbox photo link compatibility.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
 
-### 18. 2026-08-22 | Developer/Agent Name: Done by Dev2
+### 19. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** 
   1. Created a dedicated **User Profile Icon Button** in `frontend/src/components/Navbar.jsx` rendering the user's avatar image or icon and name (`MeetRaval91`).
   2. Replaced static "Dev User (Dev Mode)" label across `Navbar.jsx`, `Login.jsx`, and `Registration.jsx` with developer identity `MeetRaval91`.
@@ -164,14 +169,14 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace static dev placeholders with an interactive User Profile Avatar button linking to Screen 12 under `MeetRaval91`.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
 
-### 19. 2026-08-22 | Developer/Agent Name: Done by Dev2
+### 20. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** 
   1. Aligned Dev Mode profile data with registered user profiles by populating complete developer identity (`MeetRaval91`, `hetalraval1209@gmail.com`, avatar photo URL, language & currency preferences) in 1-Click Dev Bypass across `Navbar.jsx`, `Login.jsx`, and `Registration.jsx`.
   2. Added fallback defaults in `UserProfile.jsx` so that developer mode renders the exact same complete experience (Preplanned Trips, Previous Trips, Settings editing, Dropbox photo link input, Saved Destinations) as a live registered user.
 - **Why it was changed:** To ensure developer testing mode provides 100% parity with live user profiles on Screen 12.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
 
-### 20. 2026-08-22 | Developer/Agent Name: Done by Dev4
+### 21. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** 
   1. Built the full dynamic Admin Dashboard in `admin/src`. Installed `react-router-dom`, `axios`, `recharts`, and `lucide-react`.
   2. Built `admin/src/pages/Login.jsx` to interface with the backend JWT auth, and a `ProtectedRoute.jsx` wrapper to guard the stats.
@@ -181,7 +186,7 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace the static dummy admin wireframe with a fully functional, protected, and data-driven monitoring solution for the application.
 - **Git Status:** Built successfully (`npm run build`). Pushed to `main`.
 
-### 21. 2026-08-22 | Developer/Agent Name: Done by Dev4
+### 22. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** 
   1. Built the "Intelligent Scraper Engine" by completely rewriting `backend/src/routes/scraperRoutes.js` (`/api/scrape/magic-build`) to scrape WikiVoyage top attractions to avoid 429 Bot Blocks.
   2. Bound the backend scraper output to automatically insert `Places` directly into the MongoDB database tied to a `Trip` ID.
@@ -206,104 +211,27 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace the placeholder Screen 6 with a full-featured, pistachio-themed travel dashboard connecting user trips to Dev-03's builder and Dev-04's timeline view.
 - **Git Status:** Resolved merge cleanly across `TEAM_SYNC.md`. Tested locally with 0 errors. Ready to commit/push.
 
-### 24. 2026-08-22 | Developer/Agent Name: Done by Dev3
-- **What was done:** Completely refactored Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`). Stripped out the complex timeline, stops, and drag-and-drop state. Replaced it with a minimal, focused 4-field form (Trip Name, From, To, Dates) that collects only the required data to initialize a Trip document before handing off to the Itinerary Builder.
+### 24. 2026-08-22 | Developer/Agent Name: Done by Dev1
+- **What was done:**
+  1. Built **Screen 5: Itinerary Builder (`frontend/src/pages/ItineraryBuilder.jsx`)** with a responsive split-screen layout (Left: Timeline & Stop List, Right: Sticky Interactive OpenStreetMap).
+  2. Built a centered **Activity & City Search Modal Overlay** triggered by `+ Add Stop / Activity` with category filters (*Sightseeing*, *Food & Dining*, *Amusement & Parks*, *Culture & Art*) and live scraper backend integration.
+  3. Updated `MapTracker.jsx` to render point-to-point **Polyline travel routes** connecting added stops in sequence.
+  4. Synced trip context (dates, starting place, and `{ city, country }` destination objects) with Dev-03's `CreateTrip`.
+- **Why it was changed:** To deliver Screen 5 as specified in the hackathon wireframe with real-time route visualization and centered search modal.
+- **Git Status:** Tested with `npm run build` (0 errors). Ready to push.
+
+### [2026-08-22] - Log #25 - Final MVP Polish & True Backend Connectivity
+* **Developer/Agent Name:** Done by Dev3
+* **What was done:** 
+  - Overhauled `CreateTrip.jsx` to hit `POST /api/trips` and sequentially hit `POST /api/destinations` to persist trip structure.
+  - Overhauled `ItineraryBuilder.jsx` to include a `Save & Exit` button that hits `POST /api/places` and `POST /api/events` to persist the timeline into MongoDB.
+  - Applied premium aesthetic updates (glassmorphism, micro-animations, lifted shadows) across `CreateTrip.jsx` and `ItineraryBuilder.jsx` to resolve the "wireframe" feel.
+* **Why it was changed:** To elevate the app from a visual prototype into a fully functional, premium platform.
+* **Git Status:** Committed and pushed to `main`.
+
+
+
+### 26. 2026-08-22 | Developer/Agent Name: Done by Dev3
+- **What was done:** Completely refactored Screen 4: Create Trip (\rontend/src/pages/CreateTrip.jsx\). Stripped out the complex timeline, stops, and drag-and-drop state. Replaced it with a minimal, focused 4-field form (Trip Name, From, To, Dates) that collects only the required data to initialize a Trip document before handing off to the Itinerary Builder.
 - **Why it was changed:** To adhere to the new simplified spec which strictly enforces that stops, activities, and complex routing belong exclusively on the subsequent Itinerary Builder screens (Screen 5/8).
-- **Git Status:** Resolved merge conflict in TEAM_SYNC.md. Verified with `oxlint` (0 errors). Ready to push.
-
-- **What was done:** 
-  1. Configured the Dropbox `ACCESS_TOKEN` in the backend `.env` file to prepare for image upload functionality (Trip Covers, Profile Photos).
-  2. Installed `leaflet` and `react-leaflet` in the frontend and imported the required CSS.
-- **Why it was changed:** To finalize the setup for all required 3rd party integrations (Storage and Maps) before diving deep into complex component logic. Leaflet was chosen over Mapbox to keep the project 100% free with no API keys.
-- **Git Status:** Rebased and merged successfully. Pushed to `main`.
-
-### 13. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** 
-  1. Configured the Dropbox `ACCESS_TOKEN` in the backend `.env` file to prepare for image upload functionality (Trip Covers, Profile Photos).
-  2. Installed `leaflet` and `react-leaflet` in the frontend and imported the required CSS.
-- **Why it was changed:** To finalize the setup for all required 3rd party integrations (Storage and Maps) before diving deep into complex component logic. Leaflet was chosen over Mapbox to keep the project 100% free with no API keys.
-- **Git Status:** Rebased and merged successfully. Pushed to `main`.
-
-### 14. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** Updated `PROJECT_CONTEXT.md` to reflect the newly created `/api/upload` route and explicitly note the requirement of `DROPBOX_ACCESS_TOKEN` in the `backend/.env` file.
-- **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
-- **Git Status:** Committed and pushed to `main`.
-
-### 15. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** Added `DROPBOX_ACCESS_TOKEN` to the `envVars` list for `globetrotter-backend` in `render.yaml`.
-- **Why it was changed:** To ensure the automatic Render deployment pipeline expects the new Dropbox authentication token. Set to `sync: false` to keep the raw secret out of GitHub.
-- **Git Status:** Committed and pushed to `main`.
-
-### 16. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** 
-  1. Built Backend Dropbox Integration: Created `backend/src/routes/uploadRoutes.js` utilizing `multer` for memory buffering and `dropbox` SDK for direct-to-cloud uploads. Generates `?raw=1` shared links. Mounted to `POST /api/upload`.
-  2. Built Frontend Maps Integration: Created a reusable `MapTracker.jsx` component utilizing `react-leaflet` with OpenStreetMap tiles. 
-  3. Redesigned `ItineraryView.jsx` (Screen 9) to implement Dev1's Pistachio & Cream design system. Embedded the `MapTracker` to visualize the mock itinerary events.
-- **Why it was changed:** To finalize the foundational integrations as planned, giving all developers a plug-and-play image upload endpoint and an interactive map component.
-- **Git Status:** Committed and pushed to `main`.
-
-### 17. 2026-08-22 | Developer/Agent Name: Done by Dev2
-- **What was done:** 
-  1. Built out **User Profile / Settings Screen (Screen 12)** in `frontend/src/pages/UserProfile.jsx` following the hackathon wireframe spec (Screen 7).
-  2. Implemented profile details editing (Name, Email, Dropbox profile photo URL, Language & Currency preferences).
-  3. Added **Preplanned Trips** and **Previous Trips** grids with direct `View` links (`/itinerary/:id`) as specified in the wireframe diagram.
-  4. Added **Saved Destinations & Bookmarks** list and Account Delete double-confirmation modal.
-  5. Built backend profile endpoints in `backend/src/routes/authRoutes.js` (`GET /api/auth/profile`, `PUT /api/auth/profile`, `DELETE /api/auth/profile`).
-- **Why it was changed:** To deliver Screen 12 user profile & preferences functionality under the Pistachio & Cream design system with Dropbox photo link compatibility.
-- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
-
-### 18. 2026-08-22 | Developer/Agent Name: Done by Dev2
-- **What was done:** 
-  1. Created a dedicated **User Profile Icon Button** in `frontend/src/components/Navbar.jsx` rendering the user's avatar image or icon and name (`MeetRaval91`).
-  2. Replaced static "Dev User (Dev Mode)" label across `Navbar.jsx`, `Login.jsx`, and `Registration.jsx` with developer identity `MeetRaval91`.
-  3. Verified clicking the User Profile Icon Button redirects logged-in users directly to `/profile`.
-- **Why it was changed:** To replace static dev placeholders with an interactive User Profile Avatar button linking to Screen 12 under `MeetRaval91`.
-- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
-
-### 19. 2026-08-22 | Developer/Agent Name: Done by Dev2
-- **What was done:** 
-  1. Aligned Dev Mode profile data with registered user profiles by populating complete developer identity (`MeetRaval91`, `hetalraval1209@gmail.com`, avatar photo URL, language & currency preferences) in 1-Click Dev Bypass across `Navbar.jsx`, `Login.jsx`, and `Registration.jsx`.
-  2. Added fallback defaults in `UserProfile.jsx` so that developer mode renders the exact same complete experience (Preplanned Trips, Previous Trips, Settings editing, Dropbox photo link input, Saved Destinations) as a live registered user.
-- **Why it was changed:** To ensure developer testing mode provides 100% parity with live user profiles on Screen 12.
-- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
-
-### 20. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** 
-  1. Built the full dynamic Admin Dashboard in `admin/src`. Installed `react-router-dom`, `axios`, `recharts`, and `lucide-react`.
-  2. Built `admin/src/pages/Login.jsx` to interface with the backend JWT auth, and a `ProtectedRoute.jsx` wrapper to guard the stats.
-  3. Re-built `admin/src/pages/Dashboard.jsx` to fetch real data from `/api/admin/stats` and `/api/admin/users`.
-  4. Created a Recharts `BarChart` to visualize "Popular Destinations" and a Data Table to list all registered users.
-  5. Refactored `admin/src/index.css` to match the Pistachio design system.
-- **Why it was changed:** To replace the static dummy admin wireframe with a fully functional, protected, and data-driven monitoring solution for the application.
-- **Git Status:** Built successfully (`npm run build`). Pushed to `main`.
-
-### 21. 2026-08-22 | Developer/Agent Name: Done by Dev4
-- **What was done:** 
-  1. Built the "Intelligent Scraper Engine" by completely rewriting `backend/src/routes/scraperRoutes.js` (`/api/scrape/magic-build`) to scrape WikiVoyage top attractions to avoid 429 Bot Blocks.
-  2. Bound the backend scraper output to automatically insert `Places` directly into the MongoDB database tied to a `Trip` ID.
-  3. Built the "Magic Ideas Board" UI component in `frontend/src/pages/ItineraryView.jsx` (Screen 9) which allows users to trigger the scraper and instantly visualize scraped POIs.
-- **Why it was changed:** To shift the app direction to a "Magic Aggregator". Users no longer have to manually research their trips; the app scrapes the best things to do and builds the Ideas Board for them automatically.
-- **Git Status:** Tested backend endpoint internally via `verifyMagicScraper.js` and verified frontend Vite build (0 errors). Pushed to `main`.
-
-### 22. 2026-08-22 | Developer/Agent Name: Done by Dev2
-- **What was done:** 
-  1. Polished `UserProfile.jsx` UI and micro-animations to align 100% with Dev1's Pistachio & Cream luxury design system.
-  2. Added smooth keyframe animations (`@keyframes slideUpFade`, entrance transitions), hover lift dynamics (`shadow-soft hover:shadow-lifted hover:-translate-y-1`), and ambient gradient blurs.
-  3. Integrated interactive filter tabs (All Activity, Preplanned Trips, Previous Trips, Saved Destinations) and enhanced settings drawer.
-- **Why it was changed:** To deliver a state-of-the-art, visually stunning User Profile experience consistent with the overall application architecture.
-- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
-
-### 23. 2026-08-22 | Developer/Agent Name: Done by Dev1
-- **What was done:** 
-  1. Built and integrated **Screen 6: Trip Listing / My Trips (`frontend/src/pages/TripListing.jsx`)** with full backend integration (`GET /api/trips`, `DELETE /api/trips/:id`).
-  2. Implemented summary metrics header (Total Trips, Stops & Cities, Active, Upcoming), real-time search input, and dynamic status filter tabs (`All`, `Ongoing`, `Upcoming`, `Completed`).
-  3. Built rich travel trip cards with high-res cover photos, duration day counters, multi-city stop badges, and action buttons (`Open Builder →` linking to `/itinerary-builder?tripId=...`, `View` linking to `/itinerary/:id`, and confirmation modal for `Delete`).
-  4. Updated `frontend/src/App.jsx` to route `/trips` directly to `<TripListing />`.
-- **Why it was changed:** To replace the placeholder Screen 6 with a full-featured, pistachio-themed travel dashboard connecting user trips to Dev-03's builder and Dev-04's timeline view.
-- **Git Status:** Resolved merge cleanly across `TEAM_SYNC.md`. Tested locally with 0 errors. Ready to commit/push.
-
-### 24. 2026-08-22 | Developer/Agent Name: Done by Dev3
-- **What was done:** Completely refactored Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`). Stripped out the complex timeline, stops, and drag-and-drop state. Replaced it with a minimal, focused 4-field form (Trip Name, From, To, Dates) that collects only the required data to initialize a Trip document before handing off to the Itinerary Builder.
-- **Why it was changed:** To adhere to the new simplified spec which strictly enforces that stops, activities, and complex routing belong exclusively on the subsequent Itinerary Builder screens (Screen 5/8).
-- **Git Status:** Resolved merge conflict in TEAM_SYNC.md. Verified with `oxlint` (0 errors). Ready to push.
-
+- **Git Status:** Resolved merge conflict in TEAM_SYNC.md. Verified with \oxlint\ (0 errors). Ready to push.
