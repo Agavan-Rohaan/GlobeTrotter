@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, User, Plus, Globe, Phone, Mail, UserPlus, LogOut, Zap } from 'lucide-react';
+import { Compass, User, Plus, Globe, Phone, Mail, UserPlus, LogOut, Zap, Heart } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
@@ -72,7 +72,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white shadow-xs">
       {/* Top Micro Contact Bar */}
       <div className="bg-pistachio-900 text-pistachio-200 text-xs px-6 py-1.5 flex justify-between items-center border-b border-pistachio-800/40">
         <div className="flex items-center gap-6">
@@ -104,12 +104,12 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Main Glass Navigation Bar */}
-      <nav className="glass-panel border-b border-pistachio-100/80 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all">
+      {/* Main Navigation Bar */}
+      <nav className="bg-white border-b border-pistachio-100 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all">
         {/* Brand Logo */}
         <Link to={isAuthenticated ? '/dashboard' : '/login'} className="flex items-center gap-3 group">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-pistachio-700 to-pistachio-500 flex items-center justify-center text-white shadow-soft group-hover:scale-105 transition-transform">
-            <Compass size={22} className="animate-spin-slow" />
+            <Compass size={22} />
           </div>
           <div>
             <span className="text-2xl font-serif font-bold tracking-tight text-pistachio-950 flex items-center gap-1.5">
@@ -145,14 +145,24 @@ export default function Navbar() {
             MY TRIPS
           </Link>
           <Link
-            to="/create"
+            to="/itinerary-builder"
             className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/create')
+              isActive('/itinerary-builder')
                 ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
                 : 'text-slate-600 hover:text-pistachio-700'
             }`}
           >
             ITINERARY BUILDER
+          </Link>
+          <Link
+            to="/community"
+            className={`text-sm font-semibold tracking-wide transition-colors ${
+              isActive('/community')
+                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                : 'text-slate-600 hover:text-pistachio-700'
+            }`}
+          >
+            COMMUNITY
           </Link>
           <Link
             to="/profile"
