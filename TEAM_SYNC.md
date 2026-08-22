@@ -101,7 +101,6 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
   4. Redesigned `Login.jsx` and `Registration.jsx` to adhere 100% to the global Pistachio & Cream design system (`#fafaf7` canvas, `#3f5e33` pistachio buttons, `font-serif` headings, `font-script` subtitle accents).
 - **Why it was changed:** To enforce strict application route authentication standards, provide a developer secret key for rapid testing, support complete session termination via Logout, and achieve visual UI consistency across the app.
 - **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
-
 ### 12. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:**
   1. Added a prominent **⚡ 1-Click Dev Bypass** button to both `Login.jsx` and `Registration.jsx` (and micro-bar in `Navbar.jsx`) that instantly authenticates developers with a single click and navigates directly to `/dashboard`.
@@ -110,6 +109,10 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To satisfy the spec requirements for 1-click developer bypass, user profile navigation from dashboard/navbar, and standard unauthenticated redirection.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly.
 
+### 13. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** 
+  1. Configured the Dropbox `ACCESS_TOKEN` in the backend `.env` file to prepare for image upload functionality (Trip Covers, Profile Photos).
+  2. Installed `leaflet` and `react-leaflet` in the frontend and imported the required CSS.
 
-
-
+- **Why it was changed:** To finalize the setup for all required 3rd party integrations (Storage and Maps) before diving deep into complex component logic. Leaflet was chosen over Mapbox to keep the project 100% free with no API keys.
+- **Git Status:** Rebased and merged successfully. Pushed to `main`.
