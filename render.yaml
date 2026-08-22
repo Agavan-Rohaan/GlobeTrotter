@@ -23,6 +23,10 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     pullRequestPreviewsEnabled: false
     envVars:
       - key: VITE_API_URL
@@ -38,6 +42,10 @@ services:
     rootDir: admin
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     pullRequestPreviewsEnabled: false
     envVars:
       - key: VITE_API_URL

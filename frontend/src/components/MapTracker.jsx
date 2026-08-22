@@ -9,7 +9,6 @@ export default function MapTracker({ locations }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
-  const initialLocationsRef = useRef(validLocations);
   const [mapError, setMapError] = useState(null);
 
   // Normalize valid numeric coordinates
@@ -20,6 +19,7 @@ export default function MapTracker({ locations }) {
       return { ...loc, lat: parsedLat, lng: parsedLng };
     })
     .filter((loc) => !isNaN(loc.lat) && !isNaN(loc.lng) && loc.lat !== 0 && loc.lng !== 0), [locations]);
+  const initialLocationsRef = useRef(validLocations);
 
   // Initialize MapLibre GL Map with Geoapify Map Style
   useEffect(() => {
