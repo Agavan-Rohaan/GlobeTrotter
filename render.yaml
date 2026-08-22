@@ -14,6 +14,8 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: DROPBOX_ACCESS_TOKEN
+        sync: false
 
   - type: web
     name: globetrotter-frontend

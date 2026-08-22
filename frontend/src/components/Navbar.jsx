@@ -54,20 +54,24 @@ export default function Navbar() {
   };
 
   const handleOneClickDevBypass = () => {
+    const devUser = {
+      _id: 'dev-123',
+      name: 'MeetRaval91',
+      email: 'hetalraval1209@gmail.com',
+      profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+      role: 'admin',
+      preferences: {
+        language: 'en',
+        currency: 'USD'
+      }
+    };
     localStorage.setItem('token', 'dev-secret-token-123');
     localStorage.setItem('dev_bypass', 'true');
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
-        _id: 'dev-123',
-        name: 'Dev User (Dev Mode)',
-        email: 'dev@globetrotter.travel',
-        role: 'admin',
-      })
-    );
+    localStorage.setItem('user', JSON.stringify(devUser));
     window.dispatchEvent(new Event('auth-change'));
     navigate('/dashboard');
   };
+
 
   const isActive = (path) => location.pathname === path;
 
@@ -94,7 +98,7 @@ export default function Navbar() {
               title="1-Click Developer Bypass Log In"
             >
               <Zap size={11} className="fill-amber-300" />
-              <span>Dev 1-Click Bypass</span>
+              <span>Dev 1-Click Bypass (MeetRaval91)</span>
             </button>
           )}
           <span className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
@@ -180,15 +184,22 @@ export default function Navbar() {
         <div className="flex items-center gap-3 sm:gap-4">
           {isAuthenticated ? (
             <>
-              {/* Clickable Profile Badge */}
+              {/* Clickable Avatar Profile Icon Button */}
               <Link
                 to="/profile"
-                className="flex items-center gap-2 px-3 py-1.5 bg-pistachio-50 hover:bg-pistachio-100/80 rounded-xl border border-pistachio-200 text-xs font-semibold text-pistachio-900 transition-all cursor-pointer"
-                title="Go to User Profile"
+                className="flex items-center gap-2.5 p-1 pr-3.5 bg-pistachio-50 hover:bg-pistachio-100/90 rounded-full border border-pistachio-200 text-xs font-semibold text-pistachio-950 shadow-xs hover:shadow-soft transition-all cursor-pointer group"
+                title={`Logged in as ${user?.name || 'MeetRaval91'} - Click to view Profile`}
               >
-                <User size={14} className="text-pistachio-700" />
-                <span>{user?.name || 'Traveler'}</span>
+                <div className="w-7 h-7 rounded-full bg-pistachio-700 text-white flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                  {user?.profilePhoto ? (
+                    <img src={user.profilePhoto} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={14} className="text-white" />
+                  )}
+                </div>
+                <span className="truncate max-w-[120px] font-bold">{user?.name || 'MeetRaval91'}</span>
               </Link>
+
 
               <Link
                 to="/create"

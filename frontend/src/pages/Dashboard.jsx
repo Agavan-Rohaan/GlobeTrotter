@@ -153,26 +153,26 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-16 pb-20 w-full">
-      
+
       {/* ============================================================ */}
       {/* 1. HERO BANNER SECTION (Pistachio Nature & Brush Script)       */}
       {/* ============================================================ */}
-      <section className="relative min-h-[580px] lg:min-h-[640px] flex items-center justify-center overflow-hidden bg-pistachio-950">
+      <section className="relative min-h-[750px] py-20 sm:py-28 lg:py-36 flex items-center justify-center overflow-hidden bg-pistachio-950">
         {/* Immersive Travel Waterfall/Nature Background */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center opacity-70 scale-105 transform hover:scale-100 transition-transform duration-1000 ease-out"
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop')`,
           }}
         />
-        
+
         {/* Lush Pistachio & Dark Emerald Overlay Gradients */}
         <div className="absolute inset-0 bg-gradient-to-t from-pistachio-950/95 via-pistachio-900/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-pistachio-950/80 via-transparent to-pistachio-950/70" />
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white pt-10 pb-20">
-          
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white w-full">
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-pistachio-900/80 border border-pistachio-400/30 text-pistachio-200 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-md shadow-soft">
             <Sparkles size={14} className="text-pistachio-300" />
@@ -199,8 +199,8 @@ export default function Dashboard() {
 
           {/* Interactive Search Bar & Quick Categories */}
           <div className="max-w-2xl mx-auto">
-            <form 
-              onSubmit={handleSearchSubmit} 
+            <form
+              onSubmit={handleSearchSubmit}
               className="bg-white/95 backdrop-blur-md p-2 rounded-2xl shadow-lifted border border-white/40 flex flex-col sm:flex-row items-center gap-2"
             >
               <div className="flex items-center gap-3 px-4 w-full flex-1">
@@ -229,11 +229,10 @@ export default function Dashboard() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1 rounded-full font-medium transition-all ${
-                    activeCategory === cat
-                      ? 'bg-pistachio-400 text-pistachio-950 font-bold shadow-xs'
-                      : 'bg-pistachio-900/60 text-pistachio-200 hover:bg-pistachio-800/80 border border-pistachio-700/40'
-                  }`}
+                  className={`px-3 py-1 rounded-full font-medium transition-all ${activeCategory === cat
+                    ? 'bg-pistachio-400 text-pistachio-950 font-bold shadow-xs'
+                    : 'bg-pistachio-900/60 text-pistachio-200 hover:bg-pistachio-800/80 border border-pistachio-700/40'
+                    }`}
                 >
                   {cat}
                 </button>
@@ -251,7 +250,7 @@ export default function Dashboard() {
       {/* ============================================================ */}
       <section className="max-w-7xl mx-auto px-6 sm:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
+
           {/* Left Column: Stylized Header & Call to Action */}
           <div className="lg:col-span-3 space-y-4">
             <span className="text-3xl sm:text-4xl font-script text-pistachio-700 block transform -rotate-1">
@@ -296,7 +295,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column: Horizontal Cards Stream */}
-          <div 
+          <div
             ref={carouselRef}
             className="lg:col-span-9 flex gap-5 overflow-x-auto no-scrollbar pb-4 pt-2 snap-x snap-mandatory"
           >
@@ -372,7 +371,7 @@ export default function Dashboard() {
       {/* ============================================================ */}
       <section className="max-w-7xl mx-auto px-6 sm:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column: Header */}
           <div className="lg:col-span-3 space-y-4">
             <span className="text-3xl sm:text-4xl font-script text-pistachio-700 block transform -rotate-1">
@@ -400,7 +399,7 @@ export default function Dashboard() {
 
           {/* Right Column: Trips Cards Grid */}
           <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            
+
             {/* Live Trips Loaded from Backend */}
             {trips.slice(0, 2).map((trip) => (
               <div
@@ -418,13 +417,12 @@ export default function Dashboard() {
                     />
                     {/* Status Pill Badge */}
                     <div className="absolute top-3 right-3">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs ${
-                        trip.status === 'Ongoing'
-                          ? 'bg-pistachio-700 text-white'
-                          : trip.status === 'Completed'
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs ${trip.status === 'Ongoing'
+                        ? 'bg-pistachio-700 text-white'
+                        : trip.status === 'Completed'
                           ? 'bg-emerald-600 text-white'
                           : 'bg-white/90 text-pistachio-900 backdrop-blur-xs border border-pistachio-200'
-                      }`}>
+                        }`}>
                         {trip.status || 'Planning'}
                       </span>
                     </div>
