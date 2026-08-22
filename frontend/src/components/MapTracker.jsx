@@ -18,40 +18,49 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Helper component to auto-recenter the map when the locations array changes
-function ChangeView({ center }) {
+// Helper component to auto-recenter and fit map bounds when locations change
+function ChangeView({ validLocations }) {
   const map = useMap();
   useEffect(() => {
-    if (center && center[0] && center[1]) {
-      map.setView(center);
+    if (validLocations && validLocations.length > 0) {
+      if (validLocations.length === 1) {
+        map.setView([validLocations[0].lat, validLocations[0].lng], 13);
+      } else {
+        const bounds = L.latLngBounds(validLocations.map(loc => [loc.lat, loc.lng]));
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
     }
-  }, [center, map]);
+  }, [validLocations, map]);
   return null;
 }
 
 export default function MapTracker({ locations }) {
-  // Default to Paris if no locations exist
-  const [center, setCenter] = useState([48.8566, 2.3522]); 
+  // Normalize and parse numeric lat/lng from both numbers and numeric strings
+  const validLocations = (locations || [])
+    .map(loc => {
+      const parsedLat = typeof loc.lat === 'number' ? loc.lat : parseFloat(loc.lat);
+      const parsedLng = typeof loc.lng === 'number' ? loc.lng : parseFloat(loc.lng);
+      return {
+        ...loc,
+        lat: parsedLat,
+        lng: parsedLng
+      };
+    })
+    .filter(loc => !isNaN(loc.lat) && !isNaN(loc.lng) && loc.lat !== 0 && loc.lng !== 0);
 
-  // Extract valid lat/lng positions for Markers and Polyline route
-  const validLocations = locations?.filter(loc => typeof loc.lat === 'number' && typeof loc.lng === 'number') || [];
   const polylinePositions = validLocations.map(loc => [loc.lat, loc.lng]);
-
-  useEffect(() => {
-    if (validLocations.length > 0) {
-      setCenter([validLocations[0].lat, validLocations[0].lng]);
-    }
-  }, [locations]);
+  const initialCenter = validLocations.length > 0 ? [validLocations[0].lat, validLocations[0].lng] : [48.8566, 2.3522];
 
   return (
     <div className="h-full min-h-[480px] w-full rounded-3xl overflow-hidden border border-pistachio-200/80 shadow-soft z-0 relative">
       <MapContainer 
-        center={center} 
+        center={initialCenter} 
         zoom={validLocations.length > 1 ? 6 : 12} 
         scrollWheelZoom={true} 
         className="h-full w-full z-0"
       >
-        <ChangeView center={center} />
+        <ChangeView validLocations={validLocations} />
+        
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -77,7 +86,7 @@ export default function MapTracker({ locations }) {
                   Stop #{idx + 1}
                 </span>
                 <h3 className="font-bold text-slate-900 text-sm leading-tight mb-1">{loc.title || loc.name}</h3>
-                {loc.type && <p className="text-xs text-slate-500 font-medium">{loc.type}</p>}
+                {loc.category && <p className="text-xs text-slate-500 font-medium">{loc.category}</p>}
                 {loc.cost > 0 && <p className="text-xs font-bold text-pistachio-800 mt-1">${loc.cost}</p>}
               </div>
             </Popup>
