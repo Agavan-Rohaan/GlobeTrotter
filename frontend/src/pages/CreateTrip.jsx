@@ -94,7 +94,7 @@ export default function CreateTrip() {
                 <input 
                   type="text" 
                   className="w-full pl-12 pr-4 py-3 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" 
-                  placeholder="🔍 Search city (e.g. Rajkot, India)" 
+                  placeholder="Search city (e.g. Rajkot, India)" 
                   value={fromLocation}
                   onChange={(e) => setFromLocation(e.target.value)}
                   required 
@@ -117,7 +117,7 @@ export default function CreateTrip() {
                 <input 
                   type="text" 
                   className="w-full pl-12 pr-4 py-3 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" 
-                  placeholder="🔍 Search destination city (e.g. Ahmedabad, India)" 
+                  placeholder="Search destination city (e.g. Ahmedabad, India)" 
                   value={toLocation}
                   onChange={(e) => setToLocation(e.target.value)}
                   required 
