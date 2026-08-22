@@ -8,7 +8,12 @@ import MapTracker from '../components/MapTracker';
 export default function ItineraryView() {
   const { id } = useParams();
   const [events, setEvents] = useState([]);
+  const [magicPlaces, setMagicPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [scraping, setScraping] = useState(false);
+  const [scrapeError, setScrapeError] = useState(null);
+  
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Mock data for initial scaffolding (will be replaced by actual API call)
   const mockEvents = [
@@ -30,6 +35,24 @@ export default function ItineraryView() {
       setLoading(false);
     }, 800);
   }, [id]);
+
+  const handleMagicScrape = async () => {
+    setScraping(true);
+    setScrapeError(null);
+    try {
+      // Mocking the TripId for now
+      const mockTripId = id || '6a89634ddfe3218887473762';
+      const response = await axios.post(`${API_URL}/api/scrape/magic-build`, {
+        query: 'Paris', // In reality, fetch from Trip details
+        tripId: mockTripId
+      });
+      setMagicPlaces(response.data.places);
+    } catch (err) {
+      setScrapeError(err.response?.data?.message || 'Failed to aggregate attractions.');
+    } finally {
+      setScraping(false);
+    }
+  };
 
   if (loading) return <div className="text-center py-20 text-gray-500 font-serif text-xl">Loading your masterpiece...</div>;
 
@@ -93,9 +116,48 @@ export default function ItineraryView() {
         </div>
       </div>
 
-      {/* Sidebar: Map & Budget Section */}
+      {/* Sidebar: Map, Magic Scraper & Budget Section */}
       <div className="space-y-6">
         
+        {/* Magic Scraper AI Ideas Board */}
+        <div className="bg-gradient-to-br from-pistachio-950 to-pistachio-900 p-6 rounded-2xl shadow-soft border border-pistachio-800 text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <h3 className="text-xl font-serif font-bold mb-2 text-pistachio-100 flex items-center">
+              <span className="text-2xl mr-2">✨</span> Magic Ideas Board
+            </h3>
+            <p className="text-sm font-sans text-pistachio-200 mb-5">
+              Let our AI scrape the web for the absolute best things to do in your destination and save them to your database.
+            </p>
+
+            {magicPlaces.length === 0 ? (
+              <button 
+                onClick={handleMagicScrape}
+                disabled={scraping}
+                className="w-full bg-pistachio-500 hover:bg-pistachio-400 text-pistachio-950 font-bold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {scraping ? 'Scraping the Web...' : 'Auto-Generate Places'}
+              </button>
+            ) : (
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                {magicPlaces.map((place, i) => (
+                  <div key={place._id || i} className="bg-pistachio-800/50 p-3 rounded-lg border border-pistachio-700 hover:bg-pistachio-800 transition-colors cursor-grab">
+                    <h4 className="font-bold font-serif text-sm text-white mb-1">{place.name}</h4>
+                    <p className="text-xs text-pistachio-200 line-clamp-2">{place.notes}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {scrapeError && (
+              <div className="mt-3 p-2 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-200 text-xs text-center">
+                {scrapeError}
+              </div>
+            )}
+          </div>
+          {/* Background Decorative Circle */}
+          <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-pistachio-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        </div>
+
         {/* Map Visualization */}
         <div className="bg-white p-6 rounded-2xl shadow-soft border border-[#e5ede0] sticky top-24">
           <h3 className="text-xl font-serif font-bold mb-4 text-slate-900">Map View</h3>

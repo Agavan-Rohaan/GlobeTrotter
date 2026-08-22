@@ -33,4 +33,31 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
+// Get all public trips
+router.get('/public', async (req, res) => {
+  try {
+    // We populate the user_id to show who made the trip
+    const trips = await Trip.find({ isPublic: true })
+      .populate('user_id', 'firstName lastName')
+      .sort({ createdAt: -1 });
+    res.json(trips);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Toggle Trip public status
+router.put('/:id/share', protect, async (req, res) => {
+  try {
+    const trip = await Trip.findOne({ _id: req.params.id, user_id: req.user._id });
+    if (!trip) return res.status(404).json({ message: 'Trip not found' });
+    
+    trip.isPublic = !trip.isPublic;
+    const updatedTrip = await trip.save();
+    res.json(updatedTrip);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 module.exports = router;

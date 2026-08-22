@@ -68,6 +68,17 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To provide a perfect starting point for the other developers. They can now simply open their assigned placeholder file and start coding their UI without needing to touch `App.jsx` or worry about routing conflicts.
 - **Git Status:** Committed and pushed to `main`.
 
+### [2026-08-22] - Log #23 - Master Plan Final Features
+* **Developer/Agent Name:** Done by Dev3
+* **What was done:** 
+  - **Feature 5:** Built a gorgeous Drag-and-Drop `ItineraryBuilder.jsx` using `@hello-pangea/dnd` to allow users to visually drag AI scraped places onto specific trip days.
+  - **Feature 7:** Upgraded `CreateTrip.jsx` with a Command Palette style Rich City Search, featuring curated global cities with cost indices and popularity scores.
+  - **Feature 11:** Connected `CommunityTab.jsx` to a new public backend route (`GET /api/trips/public`). Added a "Share to Community" toggle button in `TripListing.jsx`.
+* **Why it was changed:** To ensure all features requested in the hackathon PDF are fully functional and integrated with the backend.
+* **Git Status:** 100% Hackathon PDF Requirements Completed. Committed and pushed to `main`.
+
+---
+
 ### 7. 2026-08-22 | Developer/Agent Name: Done by Dev4
 - **What was done:** Refactored `frontend/src/pages/` by moving all 13 components out of the `Dev1/`, `Dev2/`, `Dev3/`, and `Dev4/` subdirectories into the flat `pages/` directory. Deleted the subdirectories. Updated `App.jsx` to remove the `DevX` routing paths and removed the "DevX:" label from the navigation links.
 - **Why it was changed:** The isolated Dev folder structure was deemed unprofessional for the final repository. We will track assignments internally via communication rather than enforcing it in the file structure.
@@ -174,6 +185,14 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
   5. Refactored `admin/src/index.css` to match the Pistachio design system.
 - **Why it was changed:** To replace the static dummy admin wireframe with a fully functional, protected, and data-driven monitoring solution for the application.
 - **Git Status:** Built successfully (`npm run build`). Pushed to `main`.
+
+### 22. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** 
+  1. Built the "Intelligent Scraper Engine" by completely rewriting `backend/src/routes/scraperRoutes.js` (`/api/scrape/magic-build`) to scrape WikiVoyage top attractions to avoid 429 Bot Blocks.
+  2. Bound the backend scraper output to automatically insert `Places` directly into the MongoDB database tied to a `Trip` ID.
+  3. Built the "Magic Ideas Board" UI component in `frontend/src/pages/ItineraryView.jsx` (Screen 9) which allows users to trigger the scraper and instantly visualize scraped POIs.
+- **Why it was changed:** To shift the app direction to a "Magic Aggregator". Users no longer have to manually research their trips; the app scrapes the best things to do and builds the Ideas Board for them automatically.
+- **Git Status:** Tested backend endpoint internally via `verifyMagicScraper.js` and verified frontend Vite build (0 errors). Pushed to `main`.
 
 ### 22. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** 

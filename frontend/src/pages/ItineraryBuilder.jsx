@@ -322,7 +322,7 @@ export default function ItineraryBuilder() {
             {tripData.destinations.map((d, idx) => (
               <React.Fragment key={idx}>
                 <span className="bg-pistachio-900/90 text-pistachio-200 border border-pistachio-700/50 px-2.5 py-1 rounded-lg font-medium">
-                  {d.city}, {d.country}
+                  {d.city || d.name}, {d.country}
                 </span>
                 {idx < tripData.destinations.length - 1 && (
                   <ArrowRight size={12} className="text-pistachio-600" />
