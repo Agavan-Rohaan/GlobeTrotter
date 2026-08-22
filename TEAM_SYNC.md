@@ -135,7 +135,12 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
 - **Git Status:** Committed and pushed to `main`.
 
-### 17. 2026-08-22 | Developer/Agent Name: Done by Dev2
+### 17. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Added `DROPBOX_ACCESS_TOKEN` to the `envVars` list for `globetrotter-backend` in `render.yaml`.
+- **Why it was changed:** To ensure the automatic Render deployment pipeline expects the new Dropbox authentication token. Set to `sync: false` to keep the raw secret out of GitHub.
+- **Git Status:** Committed and pushed to `main`.
+
+### 18. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** 
   1. Built out **User Profile / Settings Screen (Screen 12)** in `frontend/src/pages/UserProfile.jsx` following the hackathon wireframe spec (Screen 7).
   2. Implemented profile details editing (Name, Email, Dropbox profile photo URL, Language & Currency preferences).
