@@ -34,7 +34,22 @@ export default function MapTracker({ locations }) {
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${GEOAPIFY_API_KEY}`,
+      style: {
+        version: 8,
+        sources: {
+          'geoapify-raster': {
+            type: 'raster',
+            tiles: [`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`],
+            tileSize: 256,
+            attribution: '&copy; Geoapify, &copy; OpenStreetMap contributors'
+          }
+        },
+        layers: [{
+          id: 'geoapify-raster-layer',
+          type: 'raster',
+          source: 'geoapify-raster'
+        }]
+      },
       center: initialCenter,
       zoom: initialLocations.length > 1 ? 6 : 12
     });
