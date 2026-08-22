@@ -54,10 +54,3 @@ The frontend application is currently being built by a 4-developer team to suppo
    VITE_API_URL=http://localhost:5000
    ```
    *Start the app:* `npm run dev`
-
-## 🤝 Contributing (TEAM_SYNC Protocol)
-This project uses a strict multi-agent and multi-developer synchronization protocol.
-If you are contributing code:
-1. You **MUST** read and append to `TEAM_SYNC.md` before pushing any code to `main`. 
-2. Follow the 4-Developer screen division outlined in the documentation to avoid `App.jsx` merge conflicts.
-3. Check `PROJECT_CONTEXT.md` for deeper architectural information.

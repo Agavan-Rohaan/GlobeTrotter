@@ -53,6 +53,11 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** The repository lacked a master README. This provides a professional front-page for the GitHub repository and helps onboard developers faster.
 - **Git Status:** Committed and pushed to `main`.
 
+### 4. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Removed the "Contributing (TEAM_SYNC Protocol)" section from the public `README.md`.
+- **Why it was changed:** To prevent exposing the internal AI multi-agent workflow to the public or hackathon judges on the repository's front page.
+- **Git Status:** Committed and pushed to `main`.
+
 ### 4. 2026-08-22 | Developer/Agent Name: Done by Dev1
 - **What was done:**
   1. Built and integrated **Main Landing Page / Dashboard (Screen 3)** in `frontend/src/pages/Dashboard.jsx` with full backend compatibility (`GET /api/trips`, `GET /api/scrape/search`).
