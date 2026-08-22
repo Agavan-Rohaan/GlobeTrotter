@@ -72,3 +72,9 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Refactored `frontend/src/pages/` by moving all 13 components out of the `Dev1/`, `Dev2/`, `Dev3/`, and `Dev4/` subdirectories into the flat `pages/` directory. Deleted the subdirectories. Updated `App.jsx` to remove the `DevX` routing paths and removed the "DevX:" label from the navigation links.
 - **Why it was changed:** The isolated Dev folder structure was deemed unprofessional for the final repository. We will track assignments internally via communication rather than enforcing it in the file structure.
 - **Git Status:** Committed and pushed to `main`.
+
+### 8. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:** Fully built out `frontend/src/pages/Login.jsx` and `frontend/src/pages/Registration.jsx` authentication components. Integrated `VITE_API_URL` environment configuration, connected backend authentication routes (`POST /api/auth/login` and `POST /api/auth/register`), added JWT token persistence (`localStorage`), added password visibility toggles, integrated React Router navigation (`useNavigate`, `Link`), and updated `frontend/src/pages/Login.jsx` and `frontend/src/pages/Registration.jsx`.
+- **Why it was changed:** To replace placeholder screens with complete, production-ready Login and Registration flows connected directly to the Express backend API following the flat `pages/` refactoring.
+- **Git Status:** Completed locally. Ready for commit/push.
+
