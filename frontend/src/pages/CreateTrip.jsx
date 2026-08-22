@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, ArrowRight, Plus, Edit2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import api from '../services/api';
 
 export default function CreateTrip() {
   const navigate = useNavigate();
@@ -13,32 +14,47 @@ export default function CreateTrip() {
   const [errors, setErrors] = useState({});
   const [tripDuration, setTripDuration] = useState(0);
 
-  const CITY_DB = [
-    { name: 'Paris', country: 'France', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
-    { name: 'Tokyo', country: 'Japan', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
-    { name: 'Bali', country: 'Indonesia', cost: '💰💰', pop: '⭐⭐⭐⭐⭐' },
-    { name: 'Rome', country: 'Italy', cost: '💰💰💰', pop: '⭐⭐⭐⭐' },
-    { name: 'New York', country: 'USA', cost: '💰💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
-    { name: 'Bangkok', country: 'Thailand', cost: '💰', pop: '⭐⭐⭐⭐' },
-    { name: 'Barcelona', country: 'Spain', cost: '💰💰💰', pop: '⭐⭐⭐⭐' },
-    { name: 'Dubai', country: 'UAE', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐' },
-    { name: 'London', country: 'UK', cost: '💰💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
-    { name: 'Ahmedabad', country: 'India', cost: '💰', pop: '⭐⭐' }
-  ];
-  
+  // Live Nominatim City Search State
   const [citySearchQuery, setCitySearchQuery] = useState('');
+  const [cityResults, setCityResults] = useState([]);
+  const [cityLoading, setCityLoading] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
-  // Stop state
+  // Stop state with lat and lng
   const [isAddingStop, setIsAddingStop] = useState(false);
   const [editingStopId, setEditingStopId] = useState(null);
   const [stopForm, setStopForm] = useState({
     city: '',
     country: '',
     arrivalDate: '',
-    departureDate: ''
+    departureDate: '',
+    lat: null,
+    lng: null
   });
   const [stopErrors, setStopErrors] = useState('');
+
+  // Debounced City Search Effect hitting GET /api/places/cities/search
+  useEffect(() => {
+    if (!citySearchQuery || citySearchQuery.trim().length < 2) {
+      setCityResults([]);
+      return;
+    }
+
+    setCityLoading(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await api.get(`/places/cities/search?q=${encodeURIComponent(citySearchQuery)}`);
+        setCityResults(res.data || []);
+      } catch (err) {
+        console.warn('City search API error:', err.message);
+        setCityResults([]);
+      } finally {
+        setCityLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [citySearchQuery]);
 
   useEffect(() => {
     if (startDate && endDate) {
@@ -73,7 +89,6 @@ export default function CreateTrip() {
     const arrDate = new Date(arrival);
     const depDate = new Date(departure);
     
-    // Normalize times to midnight for date-only comparison
     sDate.setHours(0,0,0,0); eDate.setHours(0,0,0,0);
     arrDate.setHours(0,0,0,0); depDate.setHours(0,0,0,0);
 
@@ -81,7 +96,6 @@ export default function CreateTrip() {
     if (arrDate < sDate) return "Arrival date cannot be before trip start date.";
     if (depDate > eDate) return "Departure date cannot be after trip end date.";
 
-    // Check overlaps
     for (let stop of stops) {
       if (stop.id === excludeId) continue;
       const sArr = new Date(stop.arrivalDate); sArr.setHours(0,0,0,0);
@@ -117,13 +131,20 @@ export default function CreateTrip() {
       setStops([...stops, { ...stopForm, id: Date.now().toString() }]);
     }
     
-    setStopForm({ city: '', country: '', arrivalDate: '', departureDate: '' });
+    setStopForm({ city: '', country: '', arrivalDate: '', departureDate: '', lat: null, lng: null });
     setIsAddingStop(false);
     setStopErrors('');
   };
 
   const handleEditStop = (stop) => {
-    setStopForm({ city: stop.city, country: stop.country, arrivalDate: stop.arrivalDate, departureDate: stop.departureDate });
+    setStopForm({ 
+      city: stop.city, 
+      country: stop.country, 
+      arrivalDate: stop.arrivalDate, 
+      departureDate: stop.departureDate,
+      lat: stop.lat || null,
+      lng: stop.lng || null
+    });
     setCitySearchQuery(stop.city);
     setEditingStopId(stop.id);
     setIsAddingStop(true);
@@ -156,8 +177,23 @@ export default function CreateTrip() {
       return;
     }
     
-    // In a real app, save to backend here.
-    navigate('/builder');
+    // Pass full trip context with lat/lng coordinates to ItineraryBuilder
+    const destinationObjects = stops.map(s => ({
+      city: s.city,
+      country: s.country,
+      lat: s.lat,
+      lng: s.lng
+    }));
+
+    navigate('/itinerary-builder', {
+      state: {
+        name: tripName,
+        startDate,
+        endDate,
+        startingPlace: startingPoint,
+        destinations: destinationObjects
+      }
+    });
   };
 
   const formatDate = (dateString) => {
@@ -191,7 +227,7 @@ export default function CreateTrip() {
                 <input 
                   type="text" 
                   className="w-full px-4 py-2.5 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" 
-                  placeholder="e.g., Gujarat Explorer" 
+                  placeholder="e.g., European Grand Tour" 
                   value={tripName}
                   onChange={(e) => setTripName(e.target.value)}
                   required 
@@ -237,7 +273,7 @@ export default function CreateTrip() {
                   <input 
                     type="text" 
                     className="w-full pl-11 pr-4 py-2.5 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" 
-                    placeholder="e.g., Rajkot, Gujarat" 
+                    placeholder="e.g., Paris, France" 
                     value={startingPoint}
                     onChange={(e) => setStartingPoint(e.target.value)}
                     required 
@@ -268,7 +304,6 @@ export default function CreateTrip() {
                   <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border-2 border-slate-300 z-10 relative">
                     <MapPin size={16} className="text-slate-600" />
                   </div>
-                  {/* Line down to first stop */}
                   {stops.length > 0 && <div className="w-0.5 h-full bg-pistachio-200 min-h-[30px] my-1"></div>}
                 </div>
                 <div className="pt-1 pb-6 font-semibold text-slate-700">
@@ -283,7 +318,6 @@ export default function CreateTrip() {
                     <div className="w-8 h-8 rounded-full bg-pistachio-100 text-pistachio-800 flex items-center justify-center font-bold shrink-0 border-2 border-pistachio-300 z-10 relative">
                       {(index + 1).toString().padStart(2, '0')}
                     </div>
-                    {/* Line down to next stop if not last */}
                     {index < stops.length - 1 && <div className="w-0.5 h-full bg-pistachio-200 min-h-[40px] my-1"></div>}
                   </div>
                   
@@ -336,7 +370,7 @@ export default function CreateTrip() {
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Destination / City</label>
                   <input 
                     type="text" 
-                    className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400" 
+                    className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400 text-sm" 
                     value={citySearchQuery} 
                     onChange={e => {
                       setCitySearchQuery(e.target.value);
@@ -345,28 +379,36 @@ export default function CreateTrip() {
                     }} 
                     onFocus={() => setShowCityDropdown(true)}
                     onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
-                    placeholder="e.g. Paris" 
+                    placeholder="Search city (e.g. Paris, Tokyo)..." 
                   />
+
+                  {/* Nominatim City Dropdown */}
                   {showCityDropdown && citySearchQuery && (
                     <div className="absolute z-50 w-full mt-1 bg-white border border-pistachio-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
-                      {CITY_DB.filter(c => c.name.toLowerCase().includes(citySearchQuery.toLowerCase())).map((city, idx) => (
+                      {cityLoading && (
+                        <div className="px-4 py-3 text-xs text-slate-400">Searching OpenStreetMap Nominatim...</div>
+                      )}
+                      {!cityLoading && cityResults.length === 0 && (
+                        <div className="px-4 py-3 text-xs text-slate-400">No cities found.</div>
+                      )}
+                      {!cityLoading && cityResults.map((city, idx) => (
                         <div 
                           key={idx}
-                          className="px-4 py-3 hover:bg-pistachio-50 cursor-pointer border-b border-slate-50 last:border-0 flex justify-between items-center"
+                          className="px-4 py-3 hover:bg-pistachio-50 cursor-pointer border-b border-slate-50 last:border-0"
                           onClick={() => {
                             setCitySearchQuery(city.name);
-                            setStopForm({...stopForm, city: city.name, country: city.country});
+                            setStopForm({
+                              ...stopForm,
+                              city: city.name,
+                              country: city.country,
+                              lat: city.lat,
+                              lng: city.lng
+                            });
                             setShowCityDropdown(false);
                           }}
                         >
-                          <div>
-                            <span className="font-bold text-slate-800 block">{city.name}</span>
-                            <span className="text-xs text-slate-500">{city.country}</span>
-                          </div>
-                          <div className="text-right text-xs">
-                            <span className="block text-slate-600">{city.pop}</span>
-                            <span className="block">{city.cost}</span>
-                          </div>
+                          <span className="font-bold text-slate-800 block text-sm">{city.name}</span>
+                          <span className="text-xs text-slate-500">{city.displayName}</span>
                         </div>
                       ))}
                     </div>
@@ -374,15 +416,15 @@ export default function CreateTrip() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Country</label>
-                  <input type="text" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400" value={stopForm.country} onChange={e => setStopForm({...stopForm, country: e.target.value})} placeholder="e.g. France" />
+                  <input type="text" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all placeholder-slate-400 text-sm" value={stopForm.country} onChange={e => setStopForm({...stopForm, country: e.target.value})} placeholder="e.g. France" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Arrival Date</label>
-                  <input type="date" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all" value={stopForm.arrivalDate} onChange={e => setStopForm({...stopForm, arrivalDate: e.target.value})} />
+                  <input type="date" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all text-sm" value={stopForm.arrivalDate} onChange={e => setStopForm({...stopForm, arrivalDate: e.target.value})} />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Departure Date</label>
-                  <input type="date" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all" value={stopForm.departureDate} onChange={e => setStopForm({...stopForm, departureDate: e.target.value})} />
+                  <input type="date" className="w-full px-4 py-2.5 border border-pistachio-200 rounded-xl focus:ring-2 focus:ring-pistachio-500 outline-none transition-all text-sm" value={stopForm.departureDate} onChange={e => setStopForm({...stopForm, departureDate: e.target.value})} />
                 </div>
               </div>
               <div className="mt-6 flex justify-end gap-3">
@@ -443,16 +485,6 @@ export default function CreateTrip() {
                 <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">End Date</p>
                 <p className="text-sm font-bold text-slate-800">{formatDate(endDate) || 'Not set'}</p>
               </div>
-            </div>
-
-            <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Activities</p>
-              <p className="text-sm text-slate-500 italic bg-slate-50 p-2 rounded-lg border border-slate-100">Not added yet. (Add in Builder)</p>
-            </div>
-
-            <div>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Estimated Cost</p>
-              <p className="text-sm text-slate-500 italic bg-slate-50 p-2 rounded-lg border border-slate-100">Will be calculated after activities are added.</p>
             </div>
           </div>
 

@@ -34,7 +34,7 @@ export default function MapTracker({ locations }) {
   const [center, setCenter] = useState([48.8566, 2.3522]); 
 
   // Extract valid lat/lng positions for Markers and Polyline route
-  const validLocations = locations?.filter(loc => loc.lat && loc.lng) || [];
+  const validLocations = locations?.filter(loc => typeof loc.lat === 'number' && typeof loc.lng === 'number') || [];
   const polylinePositions = validLocations.map(loc => [loc.lat, loc.lng]);
 
   useEffect(() => {

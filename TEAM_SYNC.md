@@ -220,3 +220,13 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To deliver Screen 5 as specified in the hackathon wireframe with real-time route visualization and centered search modal.
 - **Git Status:** Tested with `npm run build` (0 errors). Ready to push.
 
+### 25. 2026-08-22 | Developer/Agent Name: Done by Dev1
+- **What was done:**
+  1. Implemented **OpenStreetMap Nominatim Geocoding (`GET /api/places/cities/search`)** with 1.1s rate-limiting queue, custom `User-Agent`, and in-memory cache in `backend/src/routes/placeRoutes.js`.
+  2. Implemented **OpenStreetMap Overpass POI API (`GET /api/places/nearby`)** to query real-world attractions, parks, museums, and dining spots near destination coordinates, normalized to frontend categories.
+  3. Updated `CreateTrip.jsx` to perform live debounced city search, capture numeric `lat`/`lng`, and pass full destination objects to `ItineraryBuilder`.
+  4. Updated `ItineraryBuilder.jsx` to fetch real Overpass places and enforce strict lat/lng data sync between the search modal and Leaflet `MapTracker` polyline map.
+- **Why it was changed:** To replace hardcoded arrays and rate-limited web scrapers with real-world OpenStreetMap data flowing through a single, synced state array.
+- **Git Status:** Backend tested with automated test script (passed). Frontend verified with `npm run build` (0 errors). Ready to commit/push.
+
+

@@ -3,108 +3,47 @@ import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Compass, Plus, Search, Calendar, MapPin, 
   Trash2, ArrowRight, Sparkles, X, Clock, DollarSign,
-  Utensils, Camera, Ticket, ShoppingBag, Music, Landmark, CheckCircle2
+  Utensils, Camera, Ticket, ShoppingBag, Music, Landmark, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import api from '../services/api';
 import MapTracker from '../components/MapTracker';
 
-// Curated popular activities database for Instant Recommendations & Fallback
-const POPULAR_ACTIVITIES = [
+// Fallback places for offline/demo support if Overpass service is slow
+const FALLBACK_NEARBY_PLACES = [
   {
-    id: 'pop-1',
-    name: 'Eiffel Tower Summit & Champagne Toast',
-    city: 'Paris',
-    country: 'France',
+    id: 'osm-1',
+    name: 'Eiffel Tower',
     category: 'Sightseeing',
-    cost: 45,
-    duration: '2-3 hrs',
-    image: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=800&auto=format&fit=crop',
     lat: 48.8584,
     lng: 2.2945
   },
   {
-    id: 'pop-2',
-    name: 'Louvre Museum Guided Masterpieces Tour',
-    city: 'Paris',
-    country: 'France',
+    id: 'osm-2',
+    name: 'Louvre Museum',
     category: 'Culture & Art',
-    cost: 35,
-    duration: '3 hrs',
-    image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=800&auto=format&fit=crop',
     lat: 48.8606,
     lng: 2.3376
   },
   {
-    id: 'pop-3',
-    name: 'Disneyland Paris 1-Day Park Pass',
-    city: 'Paris',
-    country: 'France',
-    category: 'Amusement & Parks',
-    cost: 95,
-    duration: 'Full Day',
-    image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?q=80&w=800&auto=format&fit=crop',
-    lat: 48.8722,
-    lng: 2.7758
-  },
-  {
-    id: 'pop-4',
-    name: 'Gourmet French Croissant & Pastry Workshop',
-    city: 'Paris',
-    country: 'France',
-    category: 'Food & Dining',
-    cost: 65,
-    duration: '2 hrs',
-    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
-    lat: 48.8566,
-    lng: 2.3522
-  },
-  {
-    id: 'pop-5',
-    name: 'Colosseum & Roman Forum Priority Entry',
-    city: 'Rome',
-    country: 'Italy',
-    category: 'Sightseeing',
-    cost: 40,
-    duration: '3 hrs',
-    image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=800&auto=format&fit=crop',
-    lat: 41.8902,
-    lng: 12.4922
-  },
-  {
-    id: 'pop-6',
-    name: 'Trastevere Evening Food & Wine Tasting Walk',
-    city: 'Rome',
-    country: 'Italy',
-    category: 'Food & Dining',
-    cost: 75,
-    duration: '3.5 hrs',
-    image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=800&auto=format&fit=crop',
-    lat: 41.8883,
-    lng: 12.4705
-  },
-  {
-    id: 'pop-7',
-    name: 'Sagrada Familia Fast-Track Basilica Tour',
-    city: 'Barcelona',
-    country: 'Spain',
+    id: 'osm-3',
+    name: 'Musée d’Orsay',
     category: 'Culture & Art',
-    cost: 38,
-    duration: '2 hrs',
-    image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=800&auto=format&fit=crop',
-    lat: 41.4036,
-    lng: 2.1744
+    lat: 48.8599,
+    lng: 2.3265
   },
   {
-    id: 'pop-8',
-    name: 'Shibuya Crossing & Harajuku Culture Experience',
-    city: 'Tokyo',
-    country: 'Japan',
-    category: 'Sightseeing',
-    cost: 25,
-    duration: '3 hrs',
-    image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800&auto=format&fit=crop',
-    lat: 35.6595,
-    lng: 139.7004
+    id: 'osm-4',
+    name: 'Jardin du Luxembourg',
+    category: 'Amusement & Parks',
+    lat: 48.8462,
+    lng: 2.3372
+  },
+  {
+    id: 'osm-5',
+    name: 'Café de Flore',
+    category: 'Food & Dining',
+    lat: 48.8542,
+    lng: 2.3325
   }
 ];
 
@@ -116,64 +55,54 @@ export default function ItineraryBuilder() {
   // Extract trip metadata from Dev-03's state or query string or defaults
   const passedState = location.state || {};
   const [tripData, setTripData] = useState({
-    name: passedState.name || passedState.tripName || 'Grand Multi-City European Journey',
+    name: passedState.name || passedState.tripName || 'Grand Multi-City Journey',
     startingPlace: passedState.startingPlace || passedState.startCity || 'Paris, France',
     startDate: passedState.startDate || '2026-07-10',
     endDate: passedState.endDate || '2026-07-24',
     destinations: passedState.destinations || [
-      { city: 'Paris', country: 'France' },
-      { city: 'Rome', country: 'Italy' },
-      { city: 'Barcelona', country: 'Spain' }
+      { city: 'Paris', country: 'France', lat: 48.8566, lng: 2.3522 },
+      { city: 'Rome', country: 'Italy', lat: 41.8902, lng: 12.4922 },
+      { city: 'Barcelona', country: 'Spain', lat: 41.3851, lng: 2.1734 }
     ]
   });
 
-  // Trip Timeline Stops state
+  // Active Trip Timeline Stops state with real coordinates
   const [stops, setStops] = useState([
     {
       id: 'stop-1',
-      title: 'Arrival & Welcome Dinner in Paris',
+      title: 'Arrival & Welcome Spot in Paris',
       city: 'Paris',
       country: 'France',
-      category: 'Food & Dining',
-      cost: 65,
-      duration: '2 hrs',
+      category: 'Sightseeing',
+      cost: 0,
+      duration: 'Visit time varies',
       lat: 48.8566,
       lng: 2.3522,
       day: 1
     },
     {
       id: 'stop-2',
-      title: 'Eiffel Tower Summit & Champagne Toast',
+      title: 'Eiffel Tower',
       city: 'Paris',
       country: 'France',
       category: 'Sightseeing',
-      cost: 45,
-      duration: '3 hrs',
+      cost: 25,
+      duration: '2-3 hrs',
       lat: 48.8584,
       lng: 2.2945,
       day: 2
-    },
-    {
-      id: 'stop-3',
-      title: 'Colosseum & Roman Forum Priority Entry',
-      city: 'Rome',
-      country: 'Italy',
-      category: 'Culture & Art',
-      cost: 40,
-      duration: '3 hrs',
-      lat: 41.8902,
-      lng: 12.4922,
-      day: 4
     }
   ]);
+
+  // Live Overpass Nearby Places State
+  const [nearbyPlaces, setNearbyPlaces] = useState([]);
+  const [placesLoading, setPlacesLoading] = useState(false);
+  const [placesError, setPlacesError] = useState(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedCityFilter, setSelectedCityFilter] = useState('All');
-  const [isScraping, setIsScraping] = useState(false);
-  const [scrapedResults, setScrapedResults] = useState([]);
   const [toastMessage, setToastMessage] = useState('');
 
   // Fetch live backend trip if tripId param exists
@@ -201,44 +130,55 @@ export default function ItineraryBuilder() {
     }
   };
 
+  // Fetch real OpenStreetMap Overpass places whenever destination city coordinates change
+  useEffect(() => {
+    const primaryDest = tripData.destinations?.[0];
+    const lat = primaryDest?.lat || 48.8566;
+    const lng = primaryDest?.lng || 2.3522;
+
+    setPlacesLoading(true);
+    setPlacesError(null);
+
+    api.get(`/places/nearby?lat=${lat}&lng=${lng}&radius=5000`)
+      .then((res) => {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setNearbyPlaces(res.data);
+        } else {
+          setNearbyPlaces(FALLBACK_NEARBY_PLACES);
+        }
+      })
+      .catch((err) => {
+        console.warn('Overpass places fetch failed, using fallback list:', err.message);
+        setNearbyPlaces(FALLBACK_NEARBY_PLACES);
+      })
+      .finally(() => setPlacesLoading(false));
+  }, [tripData.destinations?.[0]?.lat, tripData.destinations?.[0]?.lng]);
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  // Perform Live Scraper Search or Filter Popular Activities
-  const handleSearchSubmit = async (e) => {
-    if (e) e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    try {
-      setIsScraping(true);
-      const res = await api.get(`/scrape/search?q=${encodeURIComponent(searchQuery)}`);
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        setScrapedResults(res.data);
-      } else {
-        setScrapedResults([]);
-      }
-    } catch (err) {
-      console.warn('Live scraper endpoint unavailable, showing fallback list:', err);
-      setScrapedResults([]);
-    } finally {
-      setIsScraping(false);
-    }
-  };
-
-  // Add Activity / Stop to Itinerary & Update Map Route
+  // Add Activity / Stop to Itinerary & Update Map Route with strict lat/lng validation
   const handleAddStop = (item) => {
+    if (typeof item.lat !== 'number' || typeof item.lng !== 'number') {
+      console.error('Attempted to add a stop with missing location coordinates:', item);
+      showToast('This place is missing location coordinates.');
+      return;
+    }
+
+    const primaryDest = tripData.destinations?.[0] || { city: 'Paris', country: 'France' };
+
     const newStop = {
       id: `stop-${Date.now()}`,
       title: item.name || item.title || 'New Activity',
-      city: item.city || tripData.destinations[0]?.city || 'Paris',
-      country: item.country || tripData.destinations[0]?.country || 'France',
+      city: item.city || primaryDest.city,
+      country: item.country || primaryDest.country,
       category: item.category || 'Sightseeing',
-      cost: item.cost || 30,
-      duration: item.duration || '2 hrs',
-      lat: item.lat || (48.8566 + (Math.random() - 0.5) * 0.08),
-      lng: item.lng || (2.3522 + (Math.random() - 0.5) * 0.08),
+      cost: item.cost || 0,
+      duration: item.duration || 'Visit time varies',
+      lat: item.lat,
+      lng: item.lng,
       day: stops.length + 1
     };
 
@@ -252,19 +192,14 @@ export default function ItineraryBuilder() {
     showToast('Stop removed from itinerary');
   };
 
-  // Filter Modal Activities
-  const displayedModalActivities = POPULAR_ACTIVITIES.filter((act) => {
+  // Filter Modal Activities against live nearbyPlaces
+  const displayedModalActivities = nearbyPlaces.filter((act) => {
     const matchesCategory = selectedCategory === 'All' || act.category === selectedCategory;
-    const matchesCity = selectedCityFilter === 'All' || act.city.toLowerCase() === selectedCityFilter.toLowerCase();
-    const matchesSearch = !searchQuery || 
-      act.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      act.city.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesCity && matchesSearch;
+    const matchesSearch = !searchQuery || act.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
-  // Calculate Metrics
   const totalCost = stops.reduce((sum, s) => sum + (s.cost || 0), 0);
-  const totalCitiesCount = new Set(stops.map(s => s.city)).size || tripData.destinations.length;
 
   return (
     <div className="space-y-8 pb-20 w-full max-w-7xl mx-auto">
@@ -365,7 +300,7 @@ export default function ItineraryBuilder() {
                   <Compass size={24} />
                 </div>
                 <h3 className="font-bold text-slate-800">Your Itinerary is Empty</h3>
-                <p className="text-slate-500 text-xs">Click "+ Add Stop / Activity" to search sightseeing, food, or amusement spots.</p>
+                <p className="text-slate-500 text-xs">Click "+ Add Stop / Activity" to search real OpenStreetMap places.</p>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(true)}
@@ -381,7 +316,6 @@ export default function ItineraryBuilder() {
                   className="bg-white rounded-2xl p-5 border border-pistachio-100 shadow-soft hover:shadow-lifted transition-all flex items-start justify-between gap-4 group"
                 >
                   <div className="flex items-start gap-4">
-                    {/* Index Badge */}
                     <div className="h-10 w-10 rounded-xl bg-pistachio-100 text-pistachio-900 font-bold flex items-center justify-center text-sm shrink-0 border border-pistachio-200">
                       #{index + 1}
                     </div>
@@ -389,7 +323,7 @@ export default function ItineraryBuilder() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
-                          {stop.category || 'Activity'}
+                          {stop.category || 'Sightseeing'}
                         </span>
                         <span className="text-xs font-semibold text-pistachio-700 flex items-center gap-1">
                           <MapPin size={12} />
@@ -403,16 +337,17 @@ export default function ItineraryBuilder() {
 
                       <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
                         <span className="flex items-center gap-1">
-                          <Clock size={12} /> {stop.duration || '2 hrs'}
+                          <Clock size={12} /> {stop.duration || 'Visit time varies'}
                         </span>
-                        <span className="flex items-center gap-1 font-semibold text-pistachio-800">
-                          <DollarSign size={12} /> ${stop.cost || 0}
-                        </span>
+                        {stop.cost > 0 && (
+                          <span className="flex items-center gap-1 font-semibold text-pistachio-800">
+                            <DollarSign size={12} /> ${stop.cost}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Remove Button */}
                   <button
                     type="button"
                     onClick={() => handleRemoveStop(stop.id)}
@@ -432,14 +367,13 @@ export default function ItineraryBuilder() {
           <div className="bg-white p-4 rounded-2xl shadow-soft border border-pistachio-100 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold font-serif text-slate-900">Point-to-Point Route Map</h2>
-              <p className="text-slate-500 text-xs">Live Leaflet navigation connecting stops</p>
+              <p className="text-slate-500 text-xs">OpenStreetMap Leaflet markers & polyline route</p>
             </div>
             <span className="text-xs font-bold text-pistachio-800 bg-pistachio-100 px-2.5 py-1 rounded-full">
               {stops.length} Markers
             </span>
           </div>
 
-          {/* OpenStreetMap Component */}
           <MapTracker locations={stops} />
         </div>
       </div>
@@ -456,10 +390,10 @@ export default function ItineraryBuilder() {
               <div>
                 <h3 className="text-xl font-bold font-serif text-slate-900 flex items-center gap-2">
                   <Sparkles size={18} className="text-pistachio-600" />
-                  Search Activities & Cities
+                  Search Places & Activities
                 </h3>
                 <p className="text-slate-500 text-xs mt-0.5">
-                  Explore sightseeing, food tours, amusement parks, or add new city stops
+                  Real-world OpenStreetMap points of interest near {tripData.destinations?.[0]?.city || 'your destination'}
                 </p>
               </div>
               <button
@@ -472,25 +406,16 @@ export default function ItineraryBuilder() {
             </div>
 
             {/* Modal Search Bar */}
-            <form onSubmit={handleSearchSubmit} className="flex gap-2">
-              <div className="relative flex-1">
-                <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search activity (e.g. Louvre, Croissant Class) or City..."
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-pistachio-600 focus:bg-white pl-10 pr-4 py-2.5 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isScraping}
-                className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-soft"
-              >
-                {isScraping ? 'Searching...' : 'Search'}
-              </button>
-            </form>
+            <div className="relative w-full">
+              <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filter places by name (e.g. Museum, Park, Cafe)..."
+                className="w-full bg-slate-50 border border-slate-200 focus:border-pistachio-600 focus:bg-white pl-10 pr-4 py-2.5 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+              />
+            </div>
 
             {/* Category Filter Chips */}
             <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
@@ -512,61 +437,65 @@ export default function ItineraryBuilder() {
             {/* Modal Content Scroll Area */}
             <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pr-1 max-h-[420px]">
               
-              {/* Popular Curated Activities List */}
               <div className="space-y-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
-                  Popular Recommended Spots & Activities
+                  Places Near {tripData.destinations?.[0]?.city || 'Destination'}
                 </span>
 
-                {displayedModalActivities.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-xs italic">
-                    No activities found matching your search or category filter.
+                {placesLoading && (
+                  <div className="text-center py-10 text-slate-400 text-xs">
+                    Loading OpenStreetMap places...
                   </div>
-                ) : (
-                  displayedModalActivities.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-slate-50 hover:bg-white rounded-2xl p-3.5 border border-slate-100 hover:border-pistachio-200 shadow-xs hover:shadow-soft transition-all flex items-center justify-between gap-4 group"
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-16 w-16 rounded-xl object-cover shrink-0"
-                        />
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-pistachio-100 text-pistachio-800">
-                              {item.category}
-                            </span>
-                            <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                              <MapPin size={11} className="text-pistachio-600" />
-                              {item.city}, {item.country}
-                            </span>
-                          </div>
-                          <h4 className="font-serif font-bold text-slate-900 text-sm group-hover:text-pistachio-800 transition-colors">
-                            {item.name}
-                          </h4>
-                          <div className="flex items-center gap-3 text-xs text-slate-500">
-                            <span>{item.duration}</span>
-                            <span>•</span>
-                            <span className="font-bold text-pistachio-800">${item.cost}</span>
-                          </div>
-                        </div>
+                )}
+
+                {!placesLoading && placesError && (
+                  <div className="text-center py-10 text-red-500 text-xs font-medium">
+                    {placesError}
+                  </div>
+                )}
+
+                {!placesLoading && !placesError && displayedModalActivities.length === 0 && (
+                  <div className="text-center py-10 text-slate-400 text-xs italic">
+                    No places found matching your search or category filter.
+                  </div>
+                )}
+
+                {!placesLoading && !placesError && displayedModalActivities.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-slate-50 hover:bg-white rounded-2xl p-4 border border-slate-100 hover:border-pistachio-200 shadow-xs hover:shadow-soft transition-all flex items-center justify-between gap-4 group"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="h-12 w-12 rounded-xl bg-pistachio-100 text-pistachio-800 flex items-center justify-center font-bold shrink-0">
+                        <Landmark size={20} />
                       </div>
 
-                      {/* Add Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleAddStop(item)}
-                        className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shrink-0 cursor-pointer shadow-soft"
-                      >
-                        <Plus size={14} className="stroke-[3]" />
-                        <span>Add</span>
-                      </button>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-pistachio-100 text-pistachio-800">
+                            {item.category}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                            <MapPin size={11} className="text-pistachio-600" />
+                            {item.lat.toFixed(4)}, {item.lng.toFixed(4)}
+                          </span>
+                        </div>
+                        <h4 className="font-serif font-bold text-slate-900 text-sm group-hover:text-pistachio-800 transition-colors">
+                          {item.name}
+                        </h4>
+                      </div>
                     </div>
-                  ))
-                )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleAddStop(item)}
+                      className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shrink-0 cursor-pointer shadow-soft"
+                    >
+                      <Plus size={14} className="stroke-[3]" />
+                      <span>Add</span>
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
 
