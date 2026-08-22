@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-// Geoapify API Key for Map Styles and Vector Tiles
-const GEOAPIFY_API_KEY = '6b7c53641f534430a66d03d368e7ec89';
+// User's Active Geoapify API Key for Vector Tiles & Map Styles
+const GEOAPIFY_API_KEY = '25a9bf719b2f4498af3127866d28febf';
 
 export default function MapTracker({ locations }) {
   const mapContainerRef = useRef(null);
@@ -40,6 +40,11 @@ export default function MapTracker({ locations }) {
 
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
     mapInstanceRef.current = map;
+
+    // Trigger canvas resize after mount for flexbox containers
+    setTimeout(() => {
+      if (map) map.resize();
+    }, 200);
 
     return () => {
       map.remove();

@@ -4,13 +4,9 @@ const Place = require('../models/Place');
 const Trip = require('../models/Trip');
 const { protect } = require('../middleware/authMiddleware');
 
-const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
-const OVERPASS_BASE = 'https://overpass-api.de/api/interpreter';
-
-// REQUIRED by Nominatim's usage policy: identify your app.
-const OSM_HEADERS = {
-  'User-Agent': 'GlobeTrotter-Hackathon/1.0 (contact: team@globetrotter.travel)'
-};
+const GEOAPIFY_KEY = '25a9bf719b2f4498af3127866d28febf';
+const GEOAPIFY_GEOCODE_URL = 'https://api.geoapify.com/v1/geocode/search';
+const GEOAPIFY_PLACES_URL = 'https://api.geoapify.com/v2/places';
 
 // ---------------------------------------------------------------------------
 // SIMPLE IN-MEMORY CACHE
@@ -33,22 +29,7 @@ function setCached(key, data) {
 }
 
 // ---------------------------------------------------------------------------
-// RATE LIMITER FOR NOMINATIM (1 req/sec ceiling)
-// ---------------------------------------------------------------------------
-let nominatimQueueTail = Promise.resolve();
-
-function queueNominatimRequest(fn) {
-  const result = nominatimQueueTail.then(async () => {
-    const res = await fn();
-    await new Promise((resolve) => setTimeout(resolve, 1100));
-    return res;
-  });
-  nominatimQueueTail = result.catch(() => {});
-  return result;
-}
-
-// ---------------------------------------------------------------------------
-// ENDPOINT 1: City search (geocoding via Nominatim)
+// ENDPOINT 1: City search (Geocoding via Geoapify API)
 // GET /api/places/cities/search?q=Paris
 // ---------------------------------------------------------------------------
 router.get('/cities/search', async (req, res) => {
@@ -57,79 +38,52 @@ router.get('/cities/search', async (req, res) => {
     return res.json([]);
   }
 
-  const cacheKey = `city:${q.toLowerCase()}`;
+  const cacheKey = `city:geoapify:${q.toLowerCase()}`;
   const cached = getCached(cacheKey);
   if (cached) {
     return res.json(cached);
   }
 
   try {
-    const url = new URL(`${NOMINATIM_BASE}/search`);
-    url.searchParams.set('q', q);
-    url.searchParams.set('format', 'jsonv2');
-    url.searchParams.set('addressdetails', '1');
-    url.searchParams.set('limit', '8');
+    const url = `${GEOAPIFY_GEOCODE_URL}?text=${encodeURIComponent(q)}&format=json&limit=8&apiKey=${GEOAPIFY_KEY}`;
+    const r = await fetch(url);
+    if (!r.ok) {
+      throw new Error(`Geoapify responded ${r.status}`);
+    }
+    const data = await r.json();
 
-    const data = await queueNominatimRequest(async () => {
-      const r = await fetch(url.toString(), { headers: OSM_HEADERS });
-      if (!r.ok) {
-        throw new Error(`Nominatim responded ${r.status}`);
-      }
-      return r.json();
-    });
-
-    const cities = data
-      .filter((place) =>
-        ['city', 'town', 'village', 'administrative', 'state', 'county'].includes(
-          place.addresstype || place.type
-        )
-      )
-      .map((place) => ({
-        name:
-          place.address?.city ||
-          place.address?.town ||
-          place.address?.village ||
-          place.name ||
-          place.display_name.split(',')[0],
-        country: place.address?.country || 'Unknown',
-        displayName: place.display_name,
-        lat: parseFloat(place.lat),
-        lng: parseFloat(place.lon)
-      }));
+    const cities = (data.results || []).map((place) => ({
+      name: place.city || place.name || place.formatted.split(',')[0],
+      country: place.country || 'Unknown',
+      displayName: place.formatted,
+      lat: parseFloat(place.lat),
+      lng: parseFloat(place.lon)
+    }));
 
     setCached(cacheKey, cities);
     res.json(cities);
   } catch (err) {
-    console.error('[places/cities/search] error:', err.message);
+    console.error('[places/cities/search] Geoapify error:', err.message);
     res.json([]);
   }
 });
 
 // ---------------------------------------------------------------------------
-// ENDPOINT 2: Nearby places / things-to-do (Overpass API)
+// ENDPOINT 2: Nearby places / things-to-do (Geoapify Places API)
 // GET /api/places/nearby?lat=48.8566&lng=2.3522&radius=5000
 // ---------------------------------------------------------------------------
-const CATEGORY_MAP = {
-  attraction: 'Sightseeing',
-  viewpoint: 'Sightseeing',
-  artwork: 'Culture & Art',
-  museum: 'Culture & Art',
-  gallery: 'Culture & Art',
-  monument: 'Culture & Art',
-  memorial: 'Culture & Art',
-  theme_park: 'Amusement & Parks',
-  zoo: 'Amusement & Parks',
-  park: 'Amusement & Parks',
-  garden: 'Amusement & Parks',
-  restaurant: 'Food & Dining',
-  cafe: 'Food & Dining',
-  fast_food: 'Food & Dining'
-};
-
-function normalizeCategory(tags) {
-  const raw =
-    tags.tourism || tags.historic || tags.leisure || tags.amenity || 'attraction';
-  return CATEGORY_MAP[raw] || 'Sightseeing';
+function mapGeoapifyCategory(categories = []) {
+  const catsStr = categories.join(',').toLowerCase();
+  if (catsStr.includes('catering') || catsStr.includes('restaurant') || catsStr.includes('cafe')) {
+    return 'Food & Dining';
+  }
+  if (catsStr.includes('leisure') || catsStr.includes('park') || catsStr.includes('entertainment')) {
+    return 'Amusement & Parks';
+  }
+  if (catsStr.includes('heritage') || catsStr.includes('museum') || catsStr.includes('art')) {
+    return 'Culture & Art';
+  }
+  return 'Sightseeing';
 }
 
 router.get('/nearby', async (req, res) => {
@@ -143,55 +97,38 @@ router.get('/nearby', async (req, res) => {
 
   const roundedLat = lat.toFixed(3);
   const roundedLng = lng.toFixed(3);
-  const cacheKey = `nearby:${roundedLat}:${roundedLng}:${radius}`;
+  const cacheKey = `nearby:geoapify:${roundedLat}:${roundedLng}:${radius}`;
 
   const cached = getCached(cacheKey);
   if (cached) {
     return res.json(cached);
   }
 
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["tourism"~"attraction|museum|viewpoint|artwork|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
-      node["historic"~"monument|memorial|castle|ruins"](around:${radius},${lat},${lng});
-      node["leisure"~"park|garden"](around:${radius},${lat},${lng});
-      node["amenity"~"restaurant|cafe"](around:${radius},${lat},${lng});
-    );
-    out body 40;
-  `;
-
   try {
-    const r = await fetch(OVERPASS_BASE, {
-      method: 'POST',
-      headers: {
-        ...OSM_HEADERS,
-        'Content-Type': 'text/plain'
-      },
-      body: query
-    });
+    const url = `${GEOAPIFY_PLACES_URL}?categories=tourism,catering,entertainment,leisure,commercial&filter=circle:${lng},${lat},${radius}&limit=30&apiKey=${GEOAPIFY_KEY}`;
+    const r = await fetch(url);
 
     if (!r.ok) {
-      throw new Error(`Overpass responded ${r.status}`);
+      throw new Error(`Geoapify Places responded ${r.status}`);
     }
 
     const data = await r.json();
 
-    const places = data.elements
-      .filter((el) => el.tags && el.tags.name)
-      .map((el) => ({
-        id: `osm-${el.id}`,
-        name: el.tags.name,
-        category: normalizeCategory(el.tags),
-        lat: el.lat,
-        lng: el.lon
+    const places = (data.features || [])
+      .filter((feat) => feat.properties && feat.properties.name)
+      .map((feat, idx) => ({
+        id: `geoapify-${feat.properties.place_id || idx}`,
+        name: feat.properties.name,
+        category: mapGeoapifyCategory(feat.properties.categories || []),
+        lat: feat.geometry.coordinates[1],
+        lng: feat.geometry.coordinates[0]
       }))
       .slice(0, 30);
 
     setCached(cacheKey, places);
     res.json(places);
   } catch (err) {
-    console.error('[places/nearby] error:', err.message);
+    console.error('[places/nearby] Geoapify error:', err.message);
     res.json([]);
   }
 });
