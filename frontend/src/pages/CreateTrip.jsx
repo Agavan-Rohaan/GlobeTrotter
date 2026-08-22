@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, ArrowRight, Plus, Edit2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { MapPin, Calendar, ArrowRight, Plus, Edit2, Trash2, ChevronUp, ChevronDown, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 export default function CreateTrip() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function CreateTrip() {
   const [stops, setStops] = useState([]);
   const [errors, setErrors] = useState({});
   const [tripDuration, setTripDuration] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const CITY_DB = [
     { name: 'Paris', country: 'France', cost: '💰💰💰💰', pop: '⭐⭐⭐⭐⭐' },
@@ -144,7 +146,7 @@ export default function CreateTrip() {
     setStops(newStops);
   };
 
-  const handleCreateTrip = (e) => {
+  const handleCreateTrip = async (e) => {
     e.preventDefault();
     if (!tripName || !startDate || !endDate || !startingPoint) {
       setErrors(prev => ({ ...prev, submit: "Please fill in all basic trip information." }));
@@ -156,8 +158,37 @@ export default function CreateTrip() {
       return;
     }
     
-    // In a real app, save to backend here.
-    navigate('/builder');
+    setIsSubmitting(true);
+    try {
+      // 1. Create Trip
+      const tripRes = await api.post('/trips', {
+        name: tripName,
+        description: `Starting from ${startingPoint}, traveling to ${stops.map(s => s.city).join(', ')}.`,
+        startDate,
+        endDate
+      });
+      const newTrip = tripRes.data;
+
+      // 2. Create Destinations
+      for (let i = 0; i < stops.length; i++) {
+        const stop = stops[i];
+        await api.post('/destinations', {
+          trip_id: newTrip._id,
+          city: stop.city,
+          country: stop.country,
+          arrivalDate: stop.arrivalDate,
+          departureDate: stop.departureDate,
+          order: i
+        });
+      }
+
+      // Navigate to the newly created trip's itinerary view
+      navigate(`/itinerary/${newTrip._id}`);
+    } catch (err) {
+      console.error(err);
+      setErrors(prev => ({ ...prev, submit: "Failed to save trip to the database. Please try again." }));
+      setIsSubmitting(false);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -182,16 +213,20 @@ export default function CreateTrip() {
 
         <form onSubmit={handleCreateTrip} className="space-y-8">
           {/* Trip Basic Information */}
-          <div className="bg-white rounded-2xl border border-pistachio-100 p-6 shadow-soft">
-            <h2 className="text-xl font-serif font-semibold text-slate-800 mb-6 border-b border-pistachio-100 pb-3">Trip Details</h2>
+          <div className="glass-panel rounded-3xl border border-pistachio-100/50 p-8 shadow-lifted relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-pistachio-200/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700"></div>
+            <h2 className="text-2xl font-serif font-bold text-pistachio-950 mb-8 flex items-center gap-3">
+              <span className="bg-pistachio-100 text-pistachio-700 p-2 rounded-xl"><MapPin size={20}/></span>
+              Trip Details
+            </h2>
             
-            <div className="space-y-5">
+            <div className="space-y-6 relative z-10">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Trip Name <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-bold text-pistachio-900 mb-2 uppercase tracking-wider">Trip Name <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
-                  className="w-full px-4 py-2.5 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" 
-                  placeholder="e.g., Gujarat Explorer" 
+                  className="w-full px-5 py-3.5 bg-white/60 backdrop-blur-sm border border-pistachio-200/60 rounded-2xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-pistachio-500/20 focus:border-pistachio-500 focus:bg-white outline-none transition-all shadow-inner" 
+                  placeholder="e.g., The Grand Alpine Escape" 
                   value={tripName}
                   onChange={(e) => setTripName(e.target.value)}
                   required 
@@ -249,15 +284,18 @@ export default function CreateTrip() {
           </div>
 
           {/* Route Visualization */}
-          <div className="bg-white rounded-2xl border border-pistachio-100 p-6 shadow-soft">
-             <div className="flex justify-between items-center mb-6 border-b border-pistachio-100 pb-3">
-                <h2 className="text-xl font-serif font-semibold text-slate-800">Your Route</h2>
+          <div className="glass-panel rounded-3xl border border-pistachio-100/50 p-8 shadow-lifted relative">
+             <div className="flex justify-between items-center mb-8 border-b border-pistachio-100/50 pb-5">
+                <h2 className="text-2xl font-serif font-bold text-pistachio-950 flex items-center gap-3">
+                  <span className="bg-pistachio-100 text-pistachio-700 p-2 rounded-xl"><Plus size={20}/></span>
+                  Your Route
+                </h2>
                 <button 
                   type="button"
                   onClick={() => setIsAddingStop(true)}
-                  className="bg-pistachio-100 hover:bg-pistachio-200 text-pistachio-900 font-semibold px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5 text-sm"
+                  className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 text-sm shadow-soft hover:shadow-lifted transform hover:-translate-y-0.5"
                 >
-                  <Plus size={16} /> Add Stop
+                  <Plus size={16} /> Add Destination
                 </button>
              </div>
             
@@ -288,22 +326,22 @@ export default function CreateTrip() {
                   </div>
                   
                   <div className="flex-1 pb-6 w-full">
-                    <div className="bg-white border border-pistachio-200 rounded-xl p-4 shadow-sm w-full hover:shadow-md transition-shadow group">
-                       <div className="flex justify-between items-start mb-2">
+                    <div className="bg-white/80 backdrop-blur-sm border border-pistachio-200/60 rounded-2xl p-5 shadow-soft w-full hover:shadow-lifted hover:border-pistachio-400 transition-all group hover:-translate-y-1">
+                       <div className="flex justify-between items-start mb-3">
                          <div>
-                           <h4 className="font-bold text-slate-800 text-lg">{stop.city}</h4>
-                           <p className="text-sm text-slate-500 font-medium">{formatDate(stop.arrivalDate)} <ArrowRight size={14} className="inline mx-0.5" /> {formatDate(stop.departureDate)}</p>
+                           <h4 className="font-serif font-bold text-pistachio-950 text-xl">{stop.city}</h4>
+                           <p className="text-sm text-slate-500 font-semibold tracking-wide mt-1">{formatDate(stop.arrivalDate)} <ArrowRight size={14} className="inline mx-1 text-pistachio-400" /> {formatDate(stop.departureDate)}</p>
                          </div>
-                         <span className="bg-pistachio-50 text-pistachio-800 text-xs px-2.5 py-1 rounded-md border border-pistachio-200 font-bold tracking-wide">
+                         <span className="bg-pistachio-100 text-pistachio-800 text-xs px-3 py-1.5 rounded-lg font-bold tracking-wider uppercase shadow-inner">
                            {calculateStopDuration(stop.arrivalDate, stop.departureDate)} Days
                          </span>
                        </div>
                        
-                       <div className="flex justify-end gap-2 mt-4 border-t border-slate-50 pt-3 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button type="button" onClick={() => moveStop(index, 'up')} disabled={index === 0} className="p-1.5 text-slate-400 hover:text-pistachio-700 disabled:opacity-30 rounded-lg hover:bg-pistachio-50 transition-colors"><ChevronUp size={18}/></button>
-                          <button type="button" onClick={() => moveStop(index, 'down')} disabled={index === stops.length - 1} className="p-1.5 text-slate-400 hover:text-pistachio-700 disabled:opacity-30 rounded-lg hover:bg-pistachio-50 transition-colors"><ChevronDown size={18}/></button>
-                          <button type="button" onClick={() => handleEditStop(stop)} className="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors ml-2"><Edit2 size={16}/></button>
-                          <button type="button" onClick={() => handleDeleteStop(stop.id)} className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16}/></button>
+                       <div className="flex justify-end gap-2 mt-4 border-t border-pistachio-100/50 pt-4 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                          <button type="button" onClick={() => moveStop(index, 'up')} disabled={index === 0} className="p-2 text-slate-400 hover:text-pistachio-700 disabled:opacity-30 rounded-xl hover:bg-pistachio-50 transition-colors"><ChevronUp size={18}/></button>
+                          <button type="button" onClick={() => moveStop(index, 'down')} disabled={index === stops.length - 1} className="p-2 text-slate-400 hover:text-pistachio-700 disabled:opacity-30 rounded-xl hover:bg-pistachio-50 transition-colors"><ChevronDown size={18}/></button>
+                          <button type="button" onClick={() => handleEditStop(stop)} className="p-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors ml-2 shadow-sm"><Edit2 size={16}/></button>
+                          <button type="button" onClick={() => handleDeleteStop(stop.id)} className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors shadow-sm"><Trash2 size={16}/></button>
                        </div>
                     </div>
                   </div>
@@ -394,8 +432,8 @@ export default function CreateTrip() {
 
           {/* Submit Button (Mobile only) */}
           <div className="lg:hidden">
-            <button type="submit" className="w-full bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold px-5 py-3.5 rounded-xl shadow-soft hover:shadow-lifted transition-all flex items-center justify-center gap-2 text-lg">
-              Create Trip <ArrowRight size={20} />
+            <button type="submit" disabled={isSubmitting} className="w-full bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold px-5 py-3.5 rounded-xl shadow-soft hover:shadow-lifted transition-all flex items-center justify-center gap-2 text-lg disabled:opacity-70 disabled:cursor-not-allowed">
+              {isSubmitting ? <><Loader2 size={20} className="animate-spin" /> Saving...</> : <>Create Trip <ArrowRight size={20} /></>}
             </button>
           </div>
         </form>
@@ -456,8 +494,8 @@ export default function CreateTrip() {
             </div>
           </div>
 
-          <button onClick={handleCreateTrip} className="w-full bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold px-5 py-3.5 rounded-xl shadow-soft hover:shadow-lifted transition-all hidden lg:flex items-center justify-center gap-2 text-lg">
-            Create Trip <ArrowRight size={20} />
+          <button onClick={handleCreateTrip} disabled={isSubmitting} className="w-full bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold px-5 py-3.5 rounded-xl shadow-soft hover:shadow-lifted transition-all hidden lg:flex items-center justify-center gap-2 text-lg disabled:opacity-70 disabled:cursor-not-allowed">
+            {isSubmitting ? <><Loader2 size={20} className="animate-spin" /> Saving...</> : <>Create Trip <ArrowRight size={20} /></>}
           </button>
         </div>
       </div>

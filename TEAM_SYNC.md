@@ -220,3 +220,12 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To deliver Screen 5 as specified in the hackathon wireframe with real-time route visualization and centered search modal.
 - **Git Status:** Tested with `npm run build` (0 errors). Ready to push.
 
+### [2026-08-22] - Log #25 - Final MVP Polish & True Backend Connectivity
+* **Developer/Agent Name:** Done by Dev3
+* **What was done:** 
+  - Overhauled `CreateTrip.jsx` to hit `POST /api/trips` and sequentially hit `POST /api/destinations` to persist trip structure.
+  - Overhauled `ItineraryBuilder.jsx` to include a `Save & Exit` button that hits `POST /api/places` and `POST /api/events` to persist the timeline into MongoDB.
+  - Applied premium aesthetic updates (glassmorphism, micro-animations, lifted shadows) across `CreateTrip.jsx` and `ItineraryBuilder.jsx` to resolve the "wireframe" feel.
+* **Why it was changed:** To elevate the app from a visual prototype into a fully functional, premium platform.
+* **Git Status:** Committed and pushed to `main`.
+
