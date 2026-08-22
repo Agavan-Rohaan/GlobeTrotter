@@ -129,3 +129,8 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
   3. Redesigned `ItineraryView.jsx` (Screen 9) to implement Dev1's Pistachio & Cream design system. Embedded the `MapTracker` to visualize the mock itinerary events.
 - **Why it was changed:** To finalize the foundational integrations as planned, giving all developers a plug-and-play image upload endpoint and an interactive map component.
 - **Git Status:** Committed and pushed to `main`.
+
+### 16. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Updated `PROJECT_CONTEXT.md` to reflect the newly created `/api/upload` route and explicitly note the requirement of `DROPBOX_ACCESS_TOKEN` in the `backend/.env` file.
+- **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
+- **Git Status:** Committed and pushed to `main`.
