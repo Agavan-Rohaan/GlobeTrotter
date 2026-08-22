@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, User, Plus, Globe, Phone, Mail, UserPlus, LogOut, Zap, Heart } from 'lucide-react';
+import { Compass, User, Plus, Globe, LogOut, UserPlus } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
@@ -11,16 +11,15 @@ export default function Navbar() {
 
   const checkAuth = () => {
     const token = localStorage.getItem('token');
-    const devBypass = localStorage.getItem('dev_bypass') === 'true';
     const storedUser = localStorage.getItem('user');
 
-    if (token || devBypass) {
+    if (token) {
       setIsAuthenticated(true);
       if (storedUser) {
         try {
           setUser(JSON.parse(storedUser));
         } catch {
-          setUser({ name: 'User' });
+          setUser({ name: 'Traveler' });
         }
       } else {
         setUser({ name: 'Traveler' });
@@ -46,70 +45,17 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('dev_bypass');
     setIsAuthenticated(false);
     setUser(null);
     window.dispatchEvent(new Event('auth-change'));
     navigate('/login');
   };
 
-  const handleOneClickDevBypass = () => {
-    const devUser = {
-      _id: 'dev-123',
-      name: 'MeetRaval91',
-      email: 'hetalraval1209@gmail.com',
-      profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-      role: 'admin',
-      preferences: {
-        language: 'en',
-        currency: 'USD'
-      }
-    };
-    localStorage.setItem('token', 'dev-secret-token-123');
-    localStorage.setItem('dev_bypass', 'true');
-    localStorage.setItem('user', JSON.stringify(devUser));
-    window.dispatchEvent(new Event('auth-change'));
-    navigate('/dashboard');
-  };
-
-
   const isActive = (path) => location.pathname === path;
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-xs">
-      {/* Top Micro Contact Bar */}
-      {/* <div className="bg-pistachio-900 text-pistachio-200 text-xs px-6 py-1.5 flex justify-between items-center border-b border-pistachio-800/40">
-        <div className="flex items-center gap-6">
-          <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
-            <Phone size={12} className="text-pistachio-400" />
-            +1 800 345 3457
-          </span>
-          <span className="hidden sm:flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
-            <Mail size={12} className="text-pistachio-400" />
-            hello@globetrotter.travel
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          {!isAuthenticated && (
-            <button
-              type="button"
-              onClick={handleOneClickDevBypass}
-              className="flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-white bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/30 transition-colors cursor-pointer"
-              title="1-Click Developer Bypass Log In"
-            >
-              <Zap size={11} className="fill-amber-300" />
-              <span>Dev 1-Click Bypass (MeetRaval91)</span>
-            </button>
-          )}
-          <span className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
-            <Globe size={12} className="text-pistachio-400" />
-            ENG (USD)
-          </span>
-        </div>
-      </div> */}
-
-      {/* Main Navigation Bar */}
-      <nav className="bg-white border-b border-pistachio-100 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all">
+      <nav className="bg-white border-b border-pistachio-100 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all max-w-7xl mx-auto">
         {/* Brand Logo */}
         <Link to={isAuthenticated ? '/dashboard' : '/login'} className="flex items-center gap-3 group">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-pistachio-700 to-pistachio-500 flex items-center justify-center text-white shadow-soft group-hover:scale-105 transition-transform">
@@ -126,69 +72,60 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Center Nav Links */}
-        <div className="hidden md:flex items-center gap-8">
-          <Link
-            to="/dashboard"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/dashboard') || isActive('/')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            DASHBOARD
-          </Link>
-          <Link
-            to="/trips"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/trips')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            MY TRIPS
-          </Link>
-          <Link
-            to="/itinerary-builder"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/itinerary-builder')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            ITINERARY BUILDER
-          </Link>
-          <Link
-            to="/community"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/community')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            COMMUNITY
-          </Link>
-          <Link
-            to="/profile"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/profile')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            PROFILE
-          </Link>
-        </div>
+        {/* Center Nav Links (Protected Links) */}
+        {isAuthenticated && (
+          <div className="hidden md:flex items-center gap-8">
+            <Link
+              to="/dashboard"
+              className={`text-sm font-semibold tracking-wide transition-colors ${
+                isActive('/dashboard')
+                  ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                  : 'text-slate-600 hover:text-pistachio-700'
+              }`}
+            >
+              DASHBOARD
+            </Link>
+            <Link
+              to="/trips"
+              className={`text-sm font-semibold tracking-wide transition-colors ${
+                isActive('/trips')
+                  ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                  : 'text-slate-600 hover:text-pistachio-700'
+              }`}
+            >
+              MY TRIPS
+            </Link>
+            <Link
+              to="/community"
+              className={`text-sm font-semibold tracking-wide transition-colors ${
+                isActive('/community')
+                  ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                  : 'text-slate-600 hover:text-pistachio-700'
+              }`}
+            >
+              COMMUNITY
+            </Link>
+            <Link
+              to="/profile"
+              className={`text-sm font-semibold tracking-wide transition-colors ${
+                isActive('/profile')
+                  ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                  : 'text-slate-600 hover:text-pistachio-700'
+              }`}
+            >
+              PROFILE
+            </Link>
+          </div>
+        )}
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
           {isAuthenticated ? (
             <>
-              {/* Clickable Avatar Profile Icon Button */}
               <Link
                 to="/profile"
                 className="flex items-center gap-2.5 p-1 pr-3.5 bg-pistachio-50 hover:bg-pistachio-100/90 rounded-full border border-pistachio-200 text-xs font-semibold text-pistachio-950 shadow-xs hover:shadow-soft transition-all cursor-pointer group"
-                title={`Logged in as ${user?.name || 'MeetRaval91'} - Click to view Profile`}
+                title={`Logged in as ${user?.name || 'Traveler'} - View Profile`}
               >
                 <div className="w-7 h-7 rounded-full bg-pistachio-700 text-white flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                   {user?.profilePhoto ? (
@@ -197,9 +134,8 @@ export default function Navbar() {
                     <User size={14} className="text-white" />
                   )}
                 </div>
-                <span className="truncate max-w-[120px] font-bold">{user?.name || 'MeetRaval91'}</span>
+                <span className="truncate max-w-[120px] font-bold">{user?.name || 'Traveler'}</span>
               </Link>
-
 
               <Link
                 to="/create"

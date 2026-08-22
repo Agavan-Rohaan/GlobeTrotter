@@ -4,20 +4,10 @@ import {
   User, Mail, Camera, Globe, DollarSign, Trash2, 
   MapPin, Calendar, Clock, ArrowRight, CheckCircle, 
   Compass, AlertTriangle, ShieldCheck, Heart, Sparkles,
-  Sliders, Settings, Bookmark, Check, Edit3, X
+  Settings, Bookmark, X, Edit3
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-const DEFAULT_DEV_USER = {
-  name: 'MeetRaval91',
-  email: 'hetalraval1209@gmail.com',
-  profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-  preferences: {
-    language: 'en',
-    currency: 'USD'
-  }
-};
 
 export default function UserProfile() {
   const navigate = useNavigate();
@@ -25,16 +15,32 @@ export default function UserProfile() {
   // Active Tab
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'preplanned' | 'previous' | 'bookmarks' | 'settings'
 
-  // User state
-  const [user, setUser] = useState(DEFAULT_DEV_USER);
+  // User state from localStorage or API
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user')) || {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const [user, setUser] = useState({
+    name: storedUser.name || 'Traveler',
+    email: storedUser.email || '',
+    profilePhoto: storedUser.profilePhoto || '',
+    preferences: {
+      language: storedUser.preferences?.language || 'en',
+      currency: storedUser.preferences?.currency || 'USD'
+    }
+  });
 
   // Editing state
   const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(DEFAULT_DEV_USER.name);
-  const [editEmail, setEditEmail] = useState(DEFAULT_DEV_USER.email);
-  const [editPhoto, setEditPhoto] = useState(DEFAULT_DEV_USER.profilePhoto);
-  const [editLanguage, setEditLanguage] = useState(DEFAULT_DEV_USER.preferences.language);
-  const [editCurrency, setEditCurrency] = useState(DEFAULT_DEV_USER.preferences.currency);
+  const [editName, setEditName] = useState(user.name);
+  const [editEmail, setEditEmail] = useState(user.email);
+  const [editPhoto, setEditPhoto] = useState(user.profilePhoto);
+  const [editLanguage, setEditLanguage] = useState(user.preferences.language);
+  const [editCurrency, setEditCurrency] = useState(user.preferences.currency);
 
   // Loading & Feedback
   const [loading, setLoading] = useState(true);
@@ -43,13 +49,9 @@ export default function UserProfile() {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Trips data from backend
+  // Real user data from backend only
   const [trips, setTrips] = useState([]);
-  const [savedDestinations, setSavedDestinations] = useState([
-    { id: '1', city: 'Paris', country: 'France', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80', description: 'City of light, art & romance' },
-    { id: '2', city: 'Kyoto', country: 'Japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&auto=format&fit=crop&q=80', description: 'Traditional temples & Zen gardens' },
-    { id: '3', city: 'Rome', country: 'Italy', image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&auto=format&fit=crop&q=80', description: 'Ancient Colosseum & Italian gelato' },
-  ]);
+  const [savedDestinations, setSavedDestinations] = useState([]);
 
   // Load user profile & trips
   useEffect(() => {
@@ -60,32 +62,8 @@ export default function UserProfile() {
   const fetchUserProfile = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
 
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        const merged = {
-          name: parsed.name || DEFAULT_DEV_USER.name,
-          email: parsed.email || DEFAULT_DEV_USER.email,
-          profilePhoto: parsed.profilePhoto || DEFAULT_DEV_USER.profilePhoto,
-          preferences: {
-            language: parsed.preferences?.language || DEFAULT_DEV_USER.preferences.language,
-            currency: parsed.preferences?.currency || DEFAULT_DEV_USER.preferences.currency
-          }
-        };
-        setUser(merged);
-        setEditName(merged.name);
-        setEditEmail(merged.email);
-        setEditPhoto(merged.profilePhoto);
-        setEditLanguage(merged.preferences.language);
-        setEditCurrency(merged.preferences.currency);
-      } catch (err) {
-        console.error("Failed to parse stored user", err);
-      }
-    }
-
-    if (token && token !== 'dev-secret-token-123') {
+    if (token) {
       try {
         const res = await fetch(`${API_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -109,42 +87,21 @@ export default function UserProfile() {
 
   const fetchUserTrips = async () => {
     const token = localStorage.getItem('token');
-    if (token && token !== 'dev-secret-token-123') {
+    if (token) {
       try {
         const res = await fetch(`${API_URL}/api/trips`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
           const data = await res.json();
-          setTrips(data);
+          setTrips(data || []);
           return;
         }
       } catch (err) {
         console.error("Fetch trips error:", err);
       }
     }
-
-    // Default sample trips for presentation
-    setTrips([
-      {
-        _id: 'sample-trip-1',
-        name: 'Summer Escapade in Tokyo & Kyoto',
-        description: 'Exploring temples, izakayas, and high-speed shinkansen trains.',
-        startDate: '2026-09-10',
-        endDate: '2026-09-24',
-        status: 'Planning',
-        coverPhoto: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&auto=format&fit=crop&q=80',
-      },
-      {
-        _id: 'sample-trip-2',
-        name: 'Amalfi Coast Coastal Discovery',
-        description: 'Cliffside villages, limoncello tastings, and Mediterranean sunsets.',
-        startDate: '2026-06-01',
-        endDate: '2026-06-12',
-        status: 'Completed',
-        coverPhoto: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop&q=80',
-      },
-    ]);
+    setTrips([]);
   };
 
   const handleSaveProfile = async (e) => {
@@ -165,7 +122,7 @@ export default function UserProfile() {
 
     const token = localStorage.getItem('token');
 
-    if (token && token !== 'dev-secret-token-123') {
+    if (token) {
       try {
         const res = await fetch(`${API_URL}/api/auth/profile`, {
           method: 'PUT',
@@ -192,27 +149,12 @@ export default function UserProfile() {
       } finally {
         setSaving(false);
       }
-    } else {
-      // Local development state save
-      const localUser = {
-        ...user,
-        name: editName,
-        email: editEmail,
-        profilePhoto: editPhoto,
-        preferences: { language: editLanguage, currency: editCurrency }
-      };
-      setUser(localUser);
-      localStorage.setItem('user', JSON.stringify(localUser));
-      window.dispatchEvent(new Event('auth-change'));
-      setMessage('Profile updated locally!');
-      setIsEditing(false);
-      setSaving(false);
     }
   };
 
   const handleDeleteAccount = async () => {
     const token = localStorage.getItem('token');
-    if (token && token !== 'dev-secret-token-123') {
+    if (token) {
       try {
         await fetch(`${API_URL}/api/auth/profile`, {
           method: 'DELETE',
@@ -225,7 +167,6 @@ export default function UserProfile() {
 
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('dev_bypass');
     window.dispatchEvent(new Event('auth-change'));
     navigate('/login');
   };
@@ -239,7 +180,7 @@ export default function UserProfile() {
       <div className="flex items-center justify-center min-h-[65vh]">
         <div className="flex flex-col items-center gap-3 text-pistachio-800 font-semibold">
           <Compass size={36} className="animate-spin text-pistachio-600" />
-          <span className="text-sm tracking-wider font-serif">Loading Travel Profile...</span>
+          <span className="text-sm tracking-wider font-serif">Loading Profile...</span>
         </div>
       </div>
     );
@@ -247,24 +188,11 @@ export default function UserProfile() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
-      <style>{`
-        @keyframes slideUpFade {
-          0% { opacity: 0; transform: translateY(16px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up {
-          animation: slideUpFade 0.4s ease-out forwards;
-        }
-      `}</style>
-
-      {/* Hero Header Card (Pistachio Design Token System) */}
-      <div className="bg-gradient-to-br from-pistachio-950 via-pistachio-900 to-pistachio-950 rounded-3xl p-8 sm:p-10 text-white shadow-soft relative overflow-hidden animate-slide-up">
-        {/* Ambient Decorative Blurs */}
+      {/* Hero Header Card */}
+      <div className="bg-gradient-to-br from-pistachio-950 via-pistachio-900 to-pistachio-950 rounded-3xl p-8 sm:p-10 text-white shadow-soft relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-16 -translate-y-16 w-80 h-80 bg-pistachio-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute left-1/3 bottom-0 translate-y-12 w-64 h-64 bg-pistachio-700/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
-          {/* User Avatar Circle */}
           <div className="relative group shrink-0">
             <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-pistachio-400/40 bg-pistachio-900 flex items-center justify-center text-white shadow-2xl transition-transform group-hover:scale-105 duration-300">
               {user.profilePhoto ? (
@@ -281,17 +209,16 @@ export default function UserProfile() {
             <button 
               type="button" 
               onClick={() => {
-                const url = prompt("Enter Dropbox Direct Image URL:", editPhoto);
+                const url = prompt("Enter Direct Profile Photo URL:", editPhoto);
                 if (url !== null) { setEditPhoto(url); setIsEditing(true); }
               }}
               className="absolute bottom-1 right-1 bg-pistachio-600 hover:bg-pistachio-500 text-white p-2.5 rounded-full shadow-lg border-2 border-pistachio-950 transition-all cursor-pointer transform hover:scale-110"
-              title="Upload Dropbox Avatar"
+              title="Update Profile Photo"
             >
               <Camera size={16} />
             </button>
           </div>
 
-          {/* User Info Details & Actions */}
           <div className="flex-1 text-center md:text-left space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -300,7 +227,7 @@ export default function UserProfile() {
                   <span>Personalized Traveler Profile</span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">
-                  {user.name || 'MeetRaval91'}
+                  {user.name || 'Traveler'}
                 </h1>
                 <p className="text-xs font-script text-pistachio-300 text-xl mt-1">
                   Personalized Travel Planning & Multi-City Escapes
@@ -317,12 +244,13 @@ export default function UserProfile() {
               </button>
             </div>
 
-            {/* Quick Stats Pills */}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-              <span className="flex items-center gap-1.5 bg-pistachio-900/90 px-3.5 py-1.5 rounded-xl border border-pistachio-800 text-xs font-medium text-pistachio-200">
-                <Mail size={14} className="text-pistachio-400" />
-                {user.email || 'hetalraval1209@gmail.com'}
-              </span>
+              {user.email && (
+                <span className="flex items-center gap-1.5 bg-pistachio-900/90 px-3.5 py-1.5 rounded-xl border border-pistachio-800 text-xs font-medium text-pistachio-200">
+                  <Mail size={14} className="text-pistachio-400" />
+                  {user.email}
+                </span>
+              )}
               <span className="flex items-center gap-1.5 bg-pistachio-900/90 px-3.5 py-1.5 rounded-xl border border-pistachio-800 text-xs font-medium text-pistachio-200">
                 <Globe size={14} className="text-pistachio-400" />
                 Lang: <strong className="text-white">{user.preferences?.language?.toUpperCase() || 'EN'}</strong>
@@ -364,16 +292,16 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* Interactive Settings Drawer (Screen 12 Functional Requirement) */}
+      {/* Settings Drawer */}
       {isEditing && (
-        <div className="bg-white rounded-3xl border border-pistachio-200 p-8 shadow-lifted space-y-6 animate-slide-up">
+        <div className="bg-white rounded-3xl border border-pistachio-200 p-8 shadow-lifted space-y-6">
           <div className="border-b border-pistachio-100 pb-4 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-serif font-bold text-slate-900 flex items-center gap-2">
                 <Settings size={20} className="text-pistachio-700" />
-                Profile Settings & Privacy Controls
+                Profile Settings
               </h2>
-              <p className="text-xs text-slate-500 font-script text-base">Modify your account information and preferred travel settings</p>
+              <p className="text-xs text-slate-500 font-script text-base">Modify your account info and preferences</p>
             </div>
             <button
               type="button"
@@ -414,18 +342,15 @@ export default function UserProfile() {
 
               <div className="md:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Dropbox Profile Photo Link URL
+                  Profile Photo URL
                 </label>
                 <input
                   type="text"
-                  placeholder="https://dl.dropboxusercontent.com/s/your-photo-link.jpg"
+                  placeholder="https://images.unsplash.com/..."
                   value={editPhoto}
                   onChange={(e) => setEditPhoto(e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-pistachio-200 rounded-xl text-slate-800 text-sm focus:ring-2 focus:ring-pistachio-500 outline-none transition-all shadow-xs"
                 />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  We support direct Dropbox image links for maximum reliability as defined in system architecture.
-                </p>
               </div>
 
               <div>
@@ -474,7 +399,7 @@ export default function UserProfile() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2.5 bg-pistachio-700 hover:bg-pistachio-800 text-white font-semibold text-xs rounded-xl shadow-soft transition-all cursor-pointer disabled:opacity-50 transform hover:-translate-y-0.5"
+                className="px-6 py-2.5 bg-pistachio-700 hover:bg-pistachio-800 text-white font-semibold text-xs rounded-xl shadow-soft transition-all cursor-pointer disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save Settings'}
               </button>
@@ -518,22 +443,11 @@ export default function UserProfile() {
         >
           Previous Trips ({previousTrips.length})
         </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('bookmarks')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'bookmarks'
-              ? 'bg-pistachio-800 text-white shadow-soft'
-              : 'bg-white text-slate-600 hover:bg-pistachio-50 border border-pistachio-100'
-          }`}
-        >
-          Saved Destinations ({savedDestinations.length})
-        </button>
       </div>
 
-      {/* SECTION 1: Preplanned Trips (From Excalidraw Wireframe Screen 7) */}
+      {/* Preplanned Trips Section */}
       {(activeTab === 'all' || activeTab === 'preplanned') && (
-        <div className="space-y-6 animate-slide-up">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-serif font-bold text-slate-900">Preplanned Trips</h2>
@@ -541,7 +455,7 @@ export default function UserProfile() {
             </div>
             <Link
               to="/create"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-pistachio-800 hover:text-pistachio-950 bg-pistachio-100 border border-pistachio-200 px-3.5 py-2 rounded-xl transition-all transform hover:-translate-y-0.5 shadow-xs"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-pistachio-800 hover:text-pistachio-950 bg-pistachio-100 border border-pistachio-200 px-3.5 py-2 rounded-xl transition-all shadow-xs"
             >
               <span>+ Plan New</span>
             </Link>
@@ -549,10 +463,10 @@ export default function UserProfile() {
 
           {preplannedTrips.length === 0 ? (
             <div className="bg-white rounded-3xl border border-pistachio-100 p-8 text-center text-slate-400 space-y-3">
-              <Compass size={36} className="mx-auto text-pistachio-400 animate-spin-slow" />
+              <Compass size={36} className="mx-auto text-pistachio-400" />
               <p className="text-sm font-medium">No preplanned trips found.</p>
               <Link to="/create" className="inline-block text-xs font-bold text-pistachio-700 hover:underline">
-                Create your first preplanned trip
+                Create your first trip
               </Link>
             </div>
           ) : (
@@ -560,7 +474,7 @@ export default function UserProfile() {
               {preplannedTrips.map((trip) => (
                 <div 
                   key={trip._id}
-                  className="bg-white rounded-3xl border border-pistachio-100 overflow-hidden shadow-soft hover:shadow-lifted transition-all duration-300 flex flex-col group transform hover:-translate-y-1"
+                  className="bg-white rounded-3xl border border-pistachio-100 overflow-hidden shadow-soft hover:shadow-lifted transition-all duration-300 flex flex-col group"
                 >
                   <div className="h-44 relative overflow-hidden bg-pistachio-950">
                     <img 
@@ -589,10 +503,9 @@ export default function UserProfile() {
                         <span>{trip.startDate ? new Date(trip.startDate).toLocaleDateString() : 'Dates TBD'}</span>
                       </div>
 
-                      {/* View Button from Wireframe */}
                       <Link
                         to={`/itinerary/${trip._id}`}
-                        className="inline-flex items-center gap-1.5 bg-pistachio-700 hover:bg-pistachio-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-xs transform hover:-translate-y-0.5"
+                        className="inline-flex items-center gap-1.5 bg-pistachio-700 hover:bg-pistachio-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-xs"
                       >
                         <span>View</span>
                         <ArrowRight size={13} />
@@ -606,12 +519,12 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* SECTION 2: Previous Trips (From Excalidraw Wireframe Screen 7) */}
+      {/* Previous Trips Section */}
       {(activeTab === 'all' || activeTab === 'previous') && (
-        <div className="space-y-6 pt-4 animate-slide-up">
+        <div className="space-y-6 pt-4">
           <div>
             <h2 className="text-2xl font-serif font-bold text-slate-900">Previous Trips</h2>
-            <p className="text-xs text-slate-500 font-script text-base">Completed journeys & cherished memories</p>
+            <p className="text-xs text-slate-500 font-script text-base">Completed journeys & memories</p>
           </div>
 
           {previousTrips.length === 0 ? (
@@ -624,7 +537,7 @@ export default function UserProfile() {
               {previousTrips.map((trip) => (
                 <div 
                   key={trip._id}
-                  className="bg-white rounded-3xl border border-pistachio-100 overflow-hidden shadow-soft hover:shadow-lifted transition-all duration-300 flex flex-col group transform hover:-translate-y-1"
+                  className="bg-white rounded-3xl border border-pistachio-100 overflow-hidden shadow-soft hover:shadow-lifted transition-all duration-300 flex flex-col group"
                 >
                   <div className="h-44 relative overflow-hidden bg-slate-900">
                     <img 
@@ -653,10 +566,9 @@ export default function UserProfile() {
                         <span>{trip.startDate ? new Date(trip.startDate).toLocaleDateString() : 'Past Trip'}</span>
                       </div>
 
-                      {/* View Button from Wireframe */}
                       <Link
                         to={`/itinerary/${trip._id}`}
-                        className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-xs transform hover:-translate-y-0.5"
+                        className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-xs"
                       >
                         <span>View</span>
                         <ArrowRight size={13} />
@@ -670,38 +582,8 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* SECTION 3: Saved Destinations & Bookmarks */}
-      {(activeTab === 'all' || activeTab === 'bookmarks') && (
-        <div className="space-y-6 pt-4 animate-slide-up">
-          <div>
-            <h2 className="text-2xl font-serif font-bold text-slate-900">Saved Destinations & Ideas</h2>
-            <p className="text-xs text-slate-500 font-script text-base">Bookmarked cities for future itinerary builds</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {savedDestinations.map((dest) => (
-              <div 
-                key={dest.id} 
-                className="bg-white rounded-3xl border border-pistachio-100 p-5 shadow-soft hover:shadow-lifted transition-all duration-300 flex items-center gap-4 group transform hover:-translate-y-1"
-              >
-                <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-pistachio-100 shadow-xs">
-                  <img src={dest.image} alt={dest.city} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-serif font-bold text-slate-900 truncate group-hover:text-pistachio-800 transition-colors">{dest.city}, {dest.country}</h4>
-                  <p className="text-xs text-slate-500 truncate">{dest.description}</p>
-                  <Link to="/create" className="text-[11px] font-bold text-pistachio-700 hover:underline mt-1 inline-block">
-                    Add to Trip +
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* SECTION 4: Account Privacy & Danger Zone */}
-      <div className="bg-rose-50/50 rounded-3xl border border-rose-200/80 p-8 space-y-4 mt-12 animate-slide-up">
+      {/* Account Privacy & Danger Zone */}
+      <div className="bg-rose-50/50 rounded-3xl border border-rose-200/80 p-8 space-y-4 mt-12">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h3 className="text-lg font-serif font-bold text-rose-950 flex items-center gap-2">
@@ -716,7 +598,7 @@ export default function UserProfile() {
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer transform hover:-translate-y-0.5"
+            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
           >
             Delete Account
           </button>
@@ -725,15 +607,15 @@ export default function UserProfile() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-rose-200 shadow-2xl space-y-6 animate-slide-up">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-rose-200 shadow-2xl space-y-6">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
                 <AlertTriangle size={24} />
               </div>
               <h3 className="text-xl font-serif font-bold text-slate-900">Are you sure?</h3>
               <p className="text-xs text-slate-500">
-                This action is permanent and cannot be undone. All your saved itineraries, destinations, and settings will be permanently erased.
+                This action is permanent. All your saved itineraries and settings will be permanently erased.
               </p>
             </div>
 

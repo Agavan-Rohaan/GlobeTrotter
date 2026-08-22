@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { 
   Compass, Plus, Search, Calendar, MapPin, 
   Trash2, ArrowRight, Sparkles, X, Clock, DollarSign,
@@ -54,7 +54,22 @@ export default function ItineraryBuilder() {
   const navigate = useNavigate();
 
   const passedState = location.state || {};
+
+  // Guard: Itinerary Builder can only be opened when making or viewing a specific trip
+  const hasTripContext = Boolean(
+    searchParams.get('tripId') || 
+    passedState.destinations || 
+    passedState.toCity || 
+    passedState.name || 
+    passedState.tripName
+  );
+
+  if (!hasTripContext) {
+    return <Navigate to="/create" replace />;
+  }
+
   const [tripData, setTripData] = useState({
+
     name: passedState.name || passedState.tripName || 'Grand Multi-City Journey',
     startingPlace: passedState.startingPlace || passedState.startCity || 'Paris, France',
     startDate: passedState.startDate || '2026-07-10',

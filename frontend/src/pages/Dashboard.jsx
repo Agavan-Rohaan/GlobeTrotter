@@ -136,26 +136,7 @@ export default function Dashboard() {
       const data = await fetchTrips();
       setTrips(data || []);
     } catch (err) {
-      setTrips([
-        {
-          _id: 'demo-1',
-          name: 'Classic European Summer',
-          description: 'Exploring Rome, Swiss Alps & Paris over 14 days',
-          startDate: '2026-07-10',
-          endDate: '2026-07-24',
-          status: 'Ongoing',
-          coverPhoto: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=800&auto=format&fit=crop',
-        },
-        {
-          _id: 'demo-2',
-          name: 'Autumn in Japan',
-          description: 'Tokyo, Kyoto shrines, and Mount Fuji photography trip',
-          startDate: '2026-10-05',
-          endDate: '2026-10-18',
-          status: 'Planning',
-          coverPhoto: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop',
-        }
-      ]);
+      setTrips([]);
     } finally {
       setLoadingTrips(false);
     }
@@ -463,73 +444,94 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Clean Real Trips or Empty State */}
+          <div className="lg:col-span-9">
+            {trips.length === 0 ? (
+              <div className="bg-white rounded-3xl p-8 border border-pistachio-100 shadow-soft text-center space-y-4">
+                <div className="h-14 w-14 rounded-2xl bg-pistachio-50 text-pistachio-700 flex items-center justify-center mx-auto">
+                  <Compass size={28} />
+                </div>
+                <h3 className="text-xl font-bold font-serif text-slate-800">No Trips Planned Yet</h3>
+                <p className="text-slate-500 text-xs max-w-sm mx-auto">
+                  Start your journey by creating your first personalized multi-city itinerary.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/create')}
+                  className="bg-pistachio-700 hover:bg-pistachio-800 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-soft transition-all cursor-pointer"
+                >
+                  + Plan Your First Trip
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {trips.slice(0, 2).map((trip) => (
+                  <div
+                    key={trip._id}
+                    onClick={() => navigate(`/trips`)}
+                    className="bg-white rounded-2xl border border-pistachio-100 shadow-soft hover:shadow-lifted overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="h-44 bg-pistachio-100 relative overflow-hidden">
+                        <img
+                          src={trip.coverPhoto || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop'}
+                          alt={trip.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 right-3">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs ${trip.status === 'Ongoing'
+                            ? 'bg-pistachio-700 text-white'
+                            : trip.status === 'Completed'
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-white/90 text-pistachio-900 backdrop-blur-xs border border-pistachio-200'
+                            }`}>
+                            {trip.status || 'Planning'}
+                          </span>
+                        </div>
+                      </div>
 
-            {trips.slice(0, 2).map((trip) => (
-              <div
-                key={trip._id}
-                onClick={() => navigate(`/trips`)}
-                className="bg-white rounded-2xl border border-pistachio-100 shadow-soft hover:shadow-lifted overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col justify-between"
-              >
-                <div>
-                  <div className="h-44 bg-pistachio-100 relative overflow-hidden">
-                    <img
-                      src={trip.coverPhoto || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop'}
-                      alt={trip.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs ${trip.status === 'Ongoing'
-                        ? 'bg-pistachio-700 text-white'
-                        : trip.status === 'Completed'
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-white/90 text-pistachio-900 backdrop-blur-xs border border-pistachio-200'
-                        }`}>
-                        {trip.status || 'Planning'}
+                      <div className="p-5">
+                        <h3 className="font-serif font-bold text-xl text-slate-900 group-hover:text-pistachio-700 transition-colors">
+                          {trip.name}
+                        </h3>
+                        <p className="text-xs text-slate-500 line-clamp-2 mt-1.5 font-sans">
+                          {trip.description || 'Custom multi-city personalized itinerary.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
+                      <span className="flex items-center gap-1.5 text-pistachio-800">
+                        <Calendar size={14} />
+                        {trip.startDate ? new Date(trip.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Flexible'}
+                        {trip.endDate ? ` - ${new Date(trip.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}
+                      </span>
+                      <span className="text-pistachio-700 font-bold flex items-center gap-1">
+                        Open <ChevronRight size={14} />
                       </span>
                     </div>
                   </div>
+                ))}
 
-                  <div className="p-5">
-                    <h3 className="font-serif font-bold text-xl text-slate-900 group-hover:text-pistachio-700 transition-colors">
-                      {trip.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 line-clamp-2 mt-1.5 font-sans">
-                      {trip.description || 'Custom multi-city personalized itinerary.'}
-                    </p>
+                <div
+                  onClick={() => navigate('/create')}
+                  className="bg-pistachio-50/70 hover:bg-pistachio-100/80 border-2 border-dashed border-pistachio-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer group min-h-[300px] shadow-xs"
+                >
+                  <div className="h-14 w-14 rounded-full bg-pistachio-700 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-soft">
+                    <Plus size={24} className="stroke-[2.5]" />
                   </div>
-                </div>
-
-                <div className="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-                  <span className="flex items-center gap-1.5 text-pistachio-800">
-                    <Calendar size={14} />
-                    {trip.startDate ? new Date(trip.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Flexible'}
-                    {trip.endDate ? ` - ${new Date(trip.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}
-                  </span>
-                  <span className="text-pistachio-700 font-bold flex items-center gap-1">
-                    Open <ChevronRight size={14} />
+                  <h4 className="font-serif font-bold text-lg text-pistachio-950">
+                    Plan a New Trip
+                  </h4>
+                  <p className="text-xs text-pistachio-800/80 mt-1 max-w-[200px]">
+                    Create a customized multi-city itinerary with activities & budget.
+                  </p>
+                  <span className="mt-4 text-xs font-bold text-pistachio-800 underline underline-offset-4 decoration-pistachio-400 group-hover:text-pistachio-950">
+                    Start Building →
                   </span>
                 </div>
               </div>
-            ))}
-
-            <div
-              onClick={() => navigate('/create')}
-              className="bg-pistachio-50/70 hover:bg-pistachio-100/80 border-2 border-dashed border-pistachio-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer group min-h-[300px] shadow-xs"
-            >
-              <div className="h-14 w-14 rounded-full bg-pistachio-700 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-soft">
-                <Plus size={24} className="stroke-[2.5]" />
-              </div>
-              <h4 className="font-serif font-bold text-lg text-pistachio-950">
-                Plan a New Trip
-              </h4>
-              <p className="text-xs text-pistachio-800/80 mt-1 max-w-[200px]">
-                Create a customized multi-city itinerary with activities & budget.
-              </p>
-              <span className="mt-4 text-xs font-bold text-pistachio-800 underline underline-offset-4 decoration-pistachio-400 group-hover:text-pistachio-950">
-                Start Building →
-              </span>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -556,7 +558,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <h4 className="font-bold text-base text-white">Live Intelligence</h4>
-                <p className="text-xs text-pistachio-200 mt-1">Native OpenStreetMap Nominatim geocoding.</p>
+                <p className="text-xs text-pistachio-200 mt-1">Native OpenStreetMap & Geoapify integration.</p>
               </div>
             </div>
 
@@ -566,7 +568,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <h4 className="font-bold text-base text-white">Budget Estimation</h4>
-                <p className="text-xs text-pistachio-200 mt-1">Automatic cost tracking by stay, transit, and food.</p>
+                <p className="text-xs text-pistachio-200 mt-1">Country PPP index cost tracking & currency.</p>
               </div>
             </div>
 

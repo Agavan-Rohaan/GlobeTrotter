@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -18,6 +18,8 @@ import CalendarView from './pages/CalendarView';
 import UserProfile from './pages/UserProfile';
 
 function App() {
+  const isAuthenticated = Boolean(localStorage.getItem('token'));
+
   return (
     <Router>
       <div className="min-h-screen bg-[#fafaf7] text-slate-800 flex flex-col font-sans selection:bg-pistachio-200 selection:text-pistachio-950">
@@ -27,19 +29,23 @@ function App() {
         {/* Main Content Area */}
         <main className="flex-1 w-full">
           <Routes>
-            {/* Screen 1 & 2: Public Auth Routes (Dev2) */}
+            {/* Screen 1 & 2: Public Auth Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Registration />} />
 
-            {/* Screen 3: Landing / Dashboard (Protected) */}
+            {/* Root Path Route: First page for unauthenticated users is /login */}
             <Route
               path="/"
               element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
+
+            {/* Screen 3: Landing / Dashboard (Protected) */}
             <Route
               path="/dashboard"
               element={
@@ -49,7 +55,7 @@ function App() {
               }
             />
 
-            {/* Screen 4: Create Trip (Protected - Dev3) */}
+            {/* Screen 4: Create Trip (Protected) */}
             <Route
               path="/create"
               element={
@@ -67,7 +73,7 @@ function App() {
               }
             />
 
-            {/* Screen 6: Trip Listing (Protected - Dev1) */}
+            {/* Screen 6: Trip Listing (Protected) */}
             <Route
               path="/trips"
               element={
@@ -77,7 +83,7 @@ function App() {
               }
             />
 
-            {/* Screen 5: Itinerary Builder (Protected - Dev3) */}
+            {/* Screen 5: Itinerary Builder (Protected - Only accessible when creating or selecting a trip) */}
             <Route
               path="/itinerary-builder"
               element={
@@ -95,7 +101,7 @@ function App() {
               }
             />
 
-            {/* Screen 6 & 9: Itinerary & Budget View (Protected - Dev4) */}
+            {/* Screen 6 & 9: Itinerary & Budget View (Protected) */}
             <Route
               path="/itinerary/:id"
               element={
@@ -113,7 +119,7 @@ function App() {
               }
             />
 
-            {/* Screen 8: Activity Search (Protected - Dev3) */}
+            {/* Screen 8: Activity Search (Protected) */}
             <Route
               path="/activities"
               element={
@@ -131,7 +137,7 @@ function App() {
               }
             />
 
-            {/* Screen 10: Community Public Feed (Protected - Dev4) */}
+            {/* Screen 10: Community Public Feed (Protected) */}
             <Route
               path="/community"
               element={
@@ -141,7 +147,7 @@ function App() {
               }
             />
 
-            {/* Screen 11: Calendar View (Protected - Dev4) */}
+            {/* Screen 11: Calendar View (Protected) */}
             <Route
               path="/calendar"
               element={
@@ -151,7 +157,7 @@ function App() {
               }
             />
 
-            {/* Screen 12: User Profile (Protected - Dev1) */}
+            {/* Screen 12: User Profile (Protected) */}
             <Route
               path="/profile"
               element={
