@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Page Imports across all 13 Screens
 import Dashboard from './pages/Dashboard';
@@ -26,45 +27,143 @@ function App() {
         {/* Main Content Area */}
         <main className="flex-1 w-full">
           <Routes>
-            {/* Screen 3: Landing / Dashboard (Dev1) */}
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Screen 1 & 2: Public Auth Routes (Dev2) */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Registration />} />
 
-            {/* Screen 1 & 2: Auth (Dev2) */}
-            <Route path="/login" element={<div className="max-w-md mx-auto p-6 mt-10"><Login /></div>} />
-            <Route path="/register" element={<div className="max-w-md mx-auto p-6 mt-10"><Registration /></div>} />
+            {/* Screen 3: Landing / Dashboard (Protected) */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 4: Create Trip (Dev3) */}
-            <Route path="/create" element={<div className="max-w-7xl mx-auto p-6"><CreateTrip /></div>} />
-            <Route path="/create-trip" element={<div className="max-w-7xl mx-auto p-6"><CreateTrip /></div>} />
+            {/* Screen 4: Create Trip (Protected - Dev3) */}
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><CreateTrip /></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-trip"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><CreateTrip /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 6: Trip Listing (Dev1) */}
-            <Route path="/trips" element={<div className="max-w-7xl mx-auto p-6"><MyTrips /></div>} />
+            {/* Screen 6: Trip Listing (Protected - Dev1) */}
+            <Route
+              path="/trips"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><MyTrips /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 5: Itinerary Builder (Dev3) */}
-            <Route path="/itinerary-builder" element={<div className="max-w-7xl mx-auto p-6"><ItineraryBuilder /></div>} />
-            <Route path="/builder" element={<div className="max-w-7xl mx-auto p-6"><ItineraryBuilder /></div>} />
+            {/* Screen 5: Itinerary Builder (Protected - Dev3) */}
+            <Route
+              path="/itinerary-builder"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><ItineraryBuilder /></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/builder"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><ItineraryBuilder /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 6 & 9: Itinerary & Budget View (Dev4) */}
-            <Route path="/itinerary/:id" element={<div className="max-w-7xl mx-auto p-6"><ItineraryView /></div>} />
-            <Route path="/itinerary-view" element={<div className="max-w-7xl mx-auto p-6"><ItineraryView /></div>} />
+            {/* Screen 6 & 9: Itinerary & Budget View (Protected - Dev4) */}
+            <Route
+              path="/itinerary/:id"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><ItineraryView /></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/itinerary-view"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><ItineraryView /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 8: Activity Search (Dev3) */}
-            <Route path="/activities" element={<div className="max-w-7xl mx-auto p-6"><ActivitySearch /></div>} />
-            <Route path="/activity-search" element={<div className="max-w-7xl mx-auto p-6"><ActivitySearch /></div>} />
+            {/* Screen 8: Activity Search (Protected - Dev3) */}
+            <Route
+              path="/activities"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><ActivitySearch /></div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/activity-search"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><ActivitySearch /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 10: Community Public Feed (Dev4) */}
-            <Route path="/community" element={<div className="max-w-7xl mx-auto p-6"><CommunityTab /></div>} />
+            {/* Screen 10: Community Public Feed (Protected - Dev4) */}
+            <Route
+              path="/community"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><CommunityTab /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 11: Calendar View (Dev4) */}
-            <Route path="/calendar" element={<div className="max-w-7xl mx-auto p-6"><CalendarView /></div>} />
+            {/* Screen 11: Calendar View (Protected - Dev4) */}
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><CalendarView /></div>
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Screen 12: User Profile (Dev1) */}
-            <Route path="/profile" element={<div className="max-w-7xl mx-auto p-6"><UserProfile /></div>} />
+            {/* Screen 12: User Profile (Protected - Dev1) */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <div className="max-w-7xl mx-auto p-6"><UserProfile /></div>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
 
-        {/* Elegant Footer matching the pistachio aesthetic */}
+        {/* Footer */}
         <footer className="bg-pistachio-950 text-pistachio-300 py-12 px-6 sm:px-10 border-t border-pistachio-900 mt-20">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-sm">
             <div className="flex items-center gap-3">

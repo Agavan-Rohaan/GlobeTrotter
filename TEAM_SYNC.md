@@ -93,8 +93,24 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To allow users to navigate directly to the Login and Registration screens from any page in the application.
 - **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
 
-### 11. 2026-08-22 | Developer/Agent Name: Done by Dev3
+### 11. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:**
+  1. Created `ProtectedRoute.jsx` component and wrapped all application routes in `App.jsx` so unauthenticated users are automatically redirected to `/login`.
+  2. Integrated dynamic `Navbar.jsx` session listener with User badge, active state updates, and a dedicated **Logout** button (`handleLogout`) that clears `localStorage` token/user state.
+  3. Added **Developer Secret Key Bypass ("DEV123")** on both `Login.jsx` and `Registration.jsx` with quick-bypass button for instant development access.
+  4. Redesigned `Login.jsx` and `Registration.jsx` to adhere 100% to the global Pistachio & Cream design system (`#fafaf7` canvas, `#3f5e33` pistachio buttons, `font-serif` headings, `font-script` subtitle accents).
+- **Why it was changed:** To enforce strict application route authentication standards, provide a developer secret key for rapid testing, support complete session termination via Logout, and achieve visual UI consistency across the app.
+- **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
+
+### 12. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:**
+  1. Added a prominent **⚡ 1-Click Dev Bypass** button to both `Login.jsx` and `Registration.jsx` (and micro-bar in `Navbar.jsx`) that instantly authenticates developers with a single click and navigates directly to `/dashboard`.
+  2. Standardized the auth flow: unauthenticated users accessing `/` or protected pages are automatically directed to `/login`, where a clear redirect card guides them to `/register` if they need an account.
+  3. Made the User Badge in `Navbar.jsx` clickable to redirect authenticated users directly to the User Profile page (`/profile`). Added `PROFILE` link to center navigation.
+- **Why it was changed:** To satisfy the spec requirements for 1-click developer bypass, user profile navigation from dashboard/navbar, and standard unauthenticated redirection.
+- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly.
+
+### 13. 2026-08-22 | Developer/Agent Name: Done by Dev3
 - **What was done:** Built Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`). Implemented two-column responsive layout, advanced state management for stops, dynamic route visualization, date logic/validation, and live trip summary following the Pistachio design system.
 - **Why it was changed:** To allow users to create the base structure of their trip (name, dates, starting point, and stops) which will later connect to Itinerary Builder activities.
 - **Git Status:** Verified locally with `oxlint` (0 errors). Ready to push.
-
