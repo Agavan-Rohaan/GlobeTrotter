@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const tripRoutes = require('./routes/tripRoutes');
+const scraperRoutes = require('./routes/scraperRoutes');
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/scrape', scraperRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'API is running...' });
