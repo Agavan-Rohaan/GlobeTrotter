@@ -93,4 +93,8 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To allow users to navigate directly to the Login and Registration screens from any page in the application.
 - **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
 
+### 11. 2026-08-22 | Developer/Agent Name: Done by Dev3
+- **What was done:** Built Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`). Implemented two-column responsive layout, advanced state management for stops, dynamic route visualization, date logic/validation, and live trip summary following the Pistachio design system.
+- **Why it was changed:** To allow users to create the base structure of their trip (name, dates, starting point, and stops) which will later connect to Itinerary Builder activities.
+- **Git Status:** Verified locally with `oxlint` (0 errors). Ready to push.
 
