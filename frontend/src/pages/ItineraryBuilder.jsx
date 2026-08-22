@@ -202,22 +202,30 @@ export default function ItineraryBuilder() {
     }
     setIsSaving(true);
     try {
+      // 1. Fetch trip destinations to get IDs
+      const destRes = await api.get(`/destinations/${tripId}`);
+      const tripDestinations = destRes.data || [];
+
+      // Create Places and Events for each stop
       for (let i = 0; i < stops.length; i++) {
         const stop = stops[i];
         
+        // Find if stop.city matches any existing destination
+        const dest = tripDestinations.find(d => d.city.toLowerCase() === stop.city.toLowerCase());
+        const destId = dest ? dest._id : null;
+        
+        // 1. Create Place
         const placeRes = await api.post('/places', {
-          city_id: 'auto-generated',
+          trip_id: tripId,
+          destination_id: destId, // Can be null as discussed
           name: stop.title,
-          description: stop.category,
           category: stop.category,
-          location: { type: 'Point', coordinates: [stop.lng, stop.lat] },
-          costInfo: (stop.cost || 0).toString(),
-          duration: stop.duration || 'Visit time varies',
-          images: ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&q=80']
+          coordinates: [stop.lng, stop.lat]
         });
         
         const place = placeRes.data;
 
+        // 2. Create Event
         const eventDate = new Date(tripData.startDate);
         eventDate.setDate(eventDate.getDate() + (stop.day - 1));
         
@@ -225,8 +233,8 @@ export default function ItineraryBuilder() {
           trip_id: tripId,
           place_id: place._id,
           date: eventDate.toISOString(),
-          startTime: '09:00',
-          endTime: '11:00',
+          startTime: eventDate.toISOString(),
+          endTime: new Date(eventDate.getTime() + 2 * 60 * 60 * 1000).toISOString(),
           cost: stop.cost || 0,
           currency: 'USD'
         });

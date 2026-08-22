@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -7,6 +7,7 @@ import MapTracker from '../components/MapTracker';
 
 export default function ItineraryView() {
   const { id } = useParams();
+  const [trip, setTrip] = useState(null);
   const [events, setEvents] = useState([]);
   const [magicPlaces, setMagicPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,13 +16,6 @@ export default function ItineraryView() {
   
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  // Mock data for initial scaffolding (will be replaced by actual API call)
-  const mockEvents = [
-    { id: 1, title: 'Eiffel Tower Tour', day: 1, time: '10:00 AM', cost: 50, type: 'Activity', location: 'Paris, France', lat: 48.8584, lng: 2.2945 },
-    { id: 2, title: 'Lunch at Le Jules Verne', day: 1, time: '01:00 PM', cost: 120, type: 'Dining', location: 'Paris, France', lat: 48.8583, lng: 2.2945 },
-    { id: 3, title: 'Louvre Museum', day: 2, time: '09:00 AM', cost: 30, type: 'Activity', location: 'Paris, France', lat: 48.8606, lng: 2.3376 },
-  ];
-
   const budgetData = [
     { name: 'Activities', value: 80, color: '#3f5e33' }, // Pistachio 700
     { name: 'Dining', value: 120, color: '#e5ede0' }, // Pistachio 100
@@ -29,22 +23,56 @@ export default function ItineraryView() {
   ];
 
   useEffect(() => {
-    // In a real scenario, this connects to GET /api/events/:tripId
-    setTimeout(() => {
-      setEvents(mockEvents);
-      setLoading(false);
-    }, 800);
-  }, [id]);
+    const fetchTripData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const [tripRes, eventsRes] = await Promise.all([
+          axios.get(`${API_URL}/api/trips/${id}`, { headers }),
+          axios.get(`${API_URL}/api/events/${id}`, { headers })
+        ]);
+        
+        setTrip(tripRes.data);
+        
+        const mappedEvents = eventsRes.data.map((evt, idx) => {
+           const place = evt.place_id || {};
+           const d = new Date(evt.startTime);
+           return {
+             id: evt._id,
+             title: place.name || 'Activity',
+             day: idx + 1, // simple sequential mapping for now
+             time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+             cost: evt.cost || 0,
+             type: place.category || 'Sightseeing',
+             location: place.address || (place.destination_id ? place.destination_id.city : ''),
+             lat: place.coordinates && place.coordinates.length === 2 ? place.coordinates[1] : 0,
+             lng: place.coordinates && place.coordinates.length === 2 ? place.coordinates[0] : 0,
+           };
+        });
+        
+        setEvents(mappedEvents);
+      } catch (error) {
+        console.error('Failed to fetch trip data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTripData();
+  }, [id, API_URL]);
 
   const handleMagicScrape = async () => {
     setScraping(true);
     setScrapeError(null);
     try {
-      // Mocking the TripId for now
-      const mockTripId = id || '6a89634ddfe3218887473762';
+      const queryCity = trip && trip.destinations && trip.destinations.length > 0 
+        ? trip.destinations[0].city 
+        : trip?.startingPlace?.split(',')[0] || 'Paris';
+        
       const response = await axios.post(`${API_URL}/api/scrape/magic-build`, {
-        query: 'Paris', // In reality, fetch from Trip details
-        tripId: mockTripId
+        query: queryCity, 
+        tripId: id
       });
       setMagicPlaces(response.data.places);
     } catch (err) {
@@ -61,57 +89,44 @@ export default function ItineraryView() {
       {/* Timeline Section */}
       <div className="lg:col-span-2 space-y-8">
         <div>
-          <h1 className="text-4xl font-serif font-bold mb-2 text-slate-900">Trip Itinerary</h1>
-          <p className="text-slate-500 font-sans">Day-by-day plan for your upcoming adventure.</p>
+          <h1 className="text-4xl font-serif font-bold mb-2 text-slate-900">{trip ? trip.name : 'Trip Itinerary'}</h1>
+          <p className="text-slate-500 font-sans">{trip ? trip.description : 'Day-by-day plan for your upcoming adventure.'}</p>
         </div>
 
         <div className="space-y-6">
-          {/* Day 1 Block */}
-          <div className="bg-white p-6 rounded-2xl shadow-soft border border-[#e5ede0]">
-            <h2 className="text-2xl font-serif font-bold mb-4 flex items-center text-[#3f5e33]">
-              <CalendarIcon className="w-6 h-6 mr-2 text-[#3f5e33]" /> Day 1
-            </h2>
-            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#e5ede0] before:to-transparent">
-              {events.filter(e => e.day === 1).map((evt, idx) => (
-                <div key={evt.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-[#e5ede0] text-[#3f5e33] shadow-soft shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-xl border border-[#e5ede0] shadow-soft hover:shadow-lifted transition-all">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-serif font-bold text-slate-900">{evt.title}</h3>
-                      <span className="text-sm font-sans font-medium text-[#3f5e33] bg-[#f4f7f1] px-2 py-1 rounded-md">{evt.time}</span>
+          {/* Timeline Blocks */}
+          {[...new Set(events.map(e => e.day))].map((dayNum) => (
+            <div key={dayNum} className="bg-white p-6 rounded-2xl shadow-soft border border-[#e5ede0]">
+              <h2 className="text-2xl font-serif font-bold mb-4 flex items-center text-[#3f5e33]">
+                <CalendarIcon className="w-6 h-6 mr-2 text-[#3f5e33]" /> Day {dayNum}
+              </h2>
+              <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#e5ede0] before:to-transparent">
+                {events.filter(e => e.day === dayNum).map((evt, idx) => (
+                  <div key={evt.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-[#e5ede0] text-[#3f5e33] shadow-soft shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                      <MapPin className="w-4 h-4" />
                     </div>
-                    <div className="flex gap-4 mt-3 text-sm font-sans text-slate-500">
-                      <span className="flex items-center"><DollarSign className="w-3 h-3 mr-1"/> ${evt.cost}</span>
-                      <span className="flex items-center">{evt.type}</span>
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-xl border border-[#e5ede0] shadow-soft hover:shadow-lifted transition-all">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-serif font-bold text-slate-900">{evt.title}</h3>
+                        <span className="text-sm font-sans font-medium text-[#3f5e33] bg-[#f4f7f1] px-2 py-1 rounded-md">{evt.time}</span>
+                      </div>
+                      <div className="flex gap-4 mt-3 text-sm font-sans text-slate-500">
+                        <span className="flex items-center"><DollarSign className="w-3 h-3 mr-1"/> ${evt.cost}</span>
+                        <span className="flex items-center">{evt.type}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ))}
           
-           {/* Day 2 Block */}
-           <div className="bg-white p-6 rounded-2xl shadow-soft border border-[#e5ede0]">
-            <h2 className="text-2xl font-serif font-bold mb-4 flex items-center text-[#3f5e33]">
-              <CalendarIcon className="w-6 h-6 mr-2 text-[#3f5e33]" /> Day 2
-            </h2>
-            <div className="space-y-4">
-               {events.filter(e => e.day === 2).map((evt) => (
-                  <div key={evt.id} className="bg-[#fafaf7] p-4 rounded-xl border border-[#e5ede0] flex justify-between items-center shadow-soft hover:shadow-lifted transition-all">
-                    <div>
-                      <h3 className="font-serif font-bold text-slate-900">{evt.title}</h3>
-                      <p className="text-sm font-sans text-slate-500">{evt.location}</p>
-                    </div>
-                    <div className="text-right">
-                       <span className="block font-sans font-medium text-[#3f5e33]">{evt.time}</span>
-                       <span className="text-sm font-sans text-slate-500">${evt.cost}</span>
-                    </div>
-                  </div>
-               ))}
+          {events.length === 0 && (
+            <div className="bg-white p-10 rounded-2xl shadow-soft border border-[#e5ede0] text-center">
+              <p className="text-slate-500 font-serif">No activities scheduled yet.</p>
             </div>
-          </div>
+          )}
 
         </div>
       </div>
@@ -123,7 +138,7 @@ export default function ItineraryView() {
         <div className="bg-gradient-to-br from-pistachio-950 to-pistachio-900 p-6 rounded-2xl shadow-soft border border-pistachio-800 text-white relative overflow-hidden">
           <div className="relative z-10">
             <h3 className="text-xl font-serif font-bold mb-2 text-pistachio-100 flex items-center">
-              <span className="text-2xl mr-2">✨</span> Magic Ideas Board
+              <span className="text-2xl mr-2">Γ£¿</span> Magic Ideas Board
             </h3>
             <p className="text-sm font-sans text-pistachio-200 mb-5">
               Let our AI scrape the web for the absolute best things to do in your destination and save them to your database.

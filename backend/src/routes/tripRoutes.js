@@ -60,4 +60,17 @@ router.put('/:id/share', protect, async (req, res) => {
   }
 });
 
+// Get a specific trip by ID
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const trip = await Trip.findOne({ _id: req.params.id, user_id: req.user._id });
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+    res.json(trip);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 module.exports = router;
