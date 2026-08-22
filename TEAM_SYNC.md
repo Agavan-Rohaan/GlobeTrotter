@@ -93,4 +93,14 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To allow users to navigate directly to the Login and Registration screens from any page in the application.
 - **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
 
+### 11. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:**
+  1. Created `ProtectedRoute.jsx` component and wrapped all application routes in `App.jsx` so unauthenticated users are automatically redirected to `/login`.
+  2. Integrated dynamic `Navbar.jsx` session listener with User badge, active state updates, and a dedicated **Logout** button (`handleLogout`) that clears `localStorage` token/user state.
+  3. Added **Developer Secret Key Bypass ("DEV123")** on both `Login.jsx` and `Registration.jsx` with quick-bypass button for instant development access.
+  4. Redesigned `Login.jsx` and `Registration.jsx` to adhere 100% to the global Pistachio & Cream design system (`#fafaf7` canvas, `#3f5e33` pistachio buttons, `font-serif` headings, `font-script` subtitle accents).
+- **Why it was changed:** To enforce strict application route authentication standards, provide a developer secret key for rapid testing, support complete session termination via Logout, and achieve visual UI consistency across the app.
+- **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
+
+
 

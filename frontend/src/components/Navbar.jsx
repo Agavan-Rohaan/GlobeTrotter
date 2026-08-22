@@ -1,16 +1,65 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Compass, Sparkles, User, Plus, Search, Globe, Phone, Mail, Heart, UserPlus } from 'lucide-react';
-
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Compass, User, Plus, Globe, Phone, Mail, UserPlus, LogOut, KeyRound } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Sync auth state from localStorage and listen to custom auth events
+  const checkAuth = () => {
+    const token = localStorage.getItem('token');
+    const devBypass = localStorage.getItem('dev_bypass') === 'true';
+    const storedUser = localStorage.getItem('user');
+
+    if (token || devBypass) {
+      setIsAuthenticated(true);
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch {
+          setUser({ name: 'User' });
+        }
+      } else {
+        setUser({ name: 'Traveler' });
+      }
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+
+    // Listen to custom window event triggered on login/logout
+    window.addEventListener('auth-change', checkAuth);
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('auth-change', checkAuth);
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('dev_bypass');
+    setIsAuthenticated(false);
+    setUser(null);
+    window.dispatchEvent(new Event('auth-change'));
+    navigate('/login');
+  };
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <header className="sticky top-0 z-50 shadow-xs">
-      {/* Top Micro Contact Bar matching the reference UI */}
+      {/* Top Micro Contact Bar */}
       <div className="bg-pistachio-900 text-pistachio-200 text-xs px-6 py-1.5 flex justify-between items-center border-b border-pistachio-800/40">
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
@@ -33,7 +82,7 @@ export default function Navbar() {
       {/* Main Glass Navigation Bar */}
       <nav className="glass-panel border-b border-pistachio-100/80 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all">
         {/* Brand Logo */}
-        <Link to="/dashboard" className="flex items-center gap-3 group">
+        <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-3 group">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-pistachio-700 to-pistachio-500 flex items-center justify-center text-white shadow-soft group-hover:scale-105 transition-transform">
             <Compass size={22} className="animate-spin-slow" />
           </div>
@@ -80,56 +129,57 @@ export default function Navbar() {
           >
             ITINERARY BUILDER
           </Link>
-          <Link
-            to="/login"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/login')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            LOGIN
-          </Link>
-          <Link
-            to="/register"
-            className={`text-sm font-semibold tracking-wide transition-colors ${
-              isActive('/register')
-                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
-                : 'text-slate-600 hover:text-pistachio-700'
-            }`}
-          >
-            REGISTER
-          </Link>
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <Link
-            to="/login"
-            className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all ${
-              isActive('/login')
-                ? 'bg-pistachio-100 text-pistachio-800 font-bold'
-                : 'text-slate-700 hover:text-pistachio-700 hover:bg-pistachio-50'
-            }`}
-          >
-            Log In
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-pistachio-50 rounded-xl border border-pistachio-200 text-xs font-semibold text-pistachio-900">
+                <User size={14} className="text-pistachio-700" />
+                <span>{user?.name || 'Traveler'}</span>
+              </div>
 
-          <Link
-            to="/register"
-            className="inline-flex items-center gap-1.5 bg-pistachio-700 hover:bg-pistachio-800 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-soft hover:shadow-lifted transition-all transform hover:-translate-y-0.5"
-          >
-            <UserPlus size={16} />
-            <span>Sign Up</span>
-          </Link>
+              <Link
+                to="/create"
+                className="hidden sm:inline-flex items-center gap-2 bg-pistachio-700 hover:bg-pistachio-800 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-soft transition-all"
+              >
+                <Plus size={16} className="stroke-[2.5]" />
+                <span>Plan Trip</span>
+              </Link>
 
-          <Link
-            to="/create"
-            className="hidden sm:inline-flex items-center gap-2 border border-pistachio-600 text-pistachio-800 hover:bg-pistachio-50 text-sm font-semibold px-4 py-2 rounded-xl transition-all"
-          >
-            <Plus size={16} className="stroke-[2.5]" />
-            <span>Plan Trip</span>
-          </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-xl border border-rose-200 transition-all cursor-pointer"
+                title="Log out of session"
+              >
+                <LogOut size={14} />
+                <span>Logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className={`text-sm font-semibold px-3.5 py-2 rounded-xl transition-all ${
+                  isActive('/login')
+                    ? 'bg-pistachio-100 text-pistachio-800 font-bold'
+                    : 'text-slate-700 hover:text-pistachio-700 hover:bg-pistachio-50'
+                }`}
+              >
+                Log In
+              </Link>
+
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-1.5 bg-pistachio-700 hover:bg-pistachio-800 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-soft hover:shadow-lifted transition-all transform hover:-translate-y-0.5"
+              >
+                <UserPlus size={16} />
+                <span>Sign Up</span>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>
