@@ -47,3 +47,8 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Updated `TEAM_SYNC.md` to include explicit AI-Specific Instructions forcing all AIs to adopt their human's Dev persona and forbidding the use of AI model names in signatures. Added explicit rule that modifying documentation also requires a log entry.
 - **Why it was changed:** To enforce strict synchronization rules across a 4-developer multi-agent team and prevent identity confusion in the changelog.
 - **Git Status:** Pushed successfully to `main`. Working tree clean.
+
+### 3. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Created `README.md` in the root directory. Added project mission, live demo URLs, tech stack, and instructions for local setup.
+- **Why it was changed:** The repository lacked a master README. This provides a professional front-page for the GitHub repository and helps onboard developers faster.
+- **Git Status:** Committed and pushed to `main`.
