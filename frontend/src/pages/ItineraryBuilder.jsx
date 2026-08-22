@@ -515,7 +515,7 @@ export default function ItineraryBuilder() {
           <div className="bg-white p-4 rounded-2xl shadow-soft border border-pistachio-100 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold font-serif text-slate-900">Point-to-Point Route Map</h2>
-              <p className="text-slate-500 text-xs">OpenStreetMap Leaflet markers & polyline route</p>
+              <p className="text-slate-500 text-xs">Geoapify Map markers & route layer</p>
             </div>
             <span className="text-xs font-bold text-pistachio-800 bg-pistachio-100 px-2.5 py-1 rounded-full">
               {stops.length} Markers
