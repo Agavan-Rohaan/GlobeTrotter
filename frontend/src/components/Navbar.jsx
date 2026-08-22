@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, User, Plus, Globe, Phone, Mail, UserPlus, LogOut, KeyRound } from 'lucide-react';
+import { Compass, User, Plus, Globe, Phone, Mail, UserPlus, LogOut, Zap } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
@@ -9,7 +9,6 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Sync auth state from localStorage and listen to custom auth events
   const checkAuth = () => {
     const token = localStorage.getItem('token');
     const devBypass = localStorage.getItem('dev_bypass') === 'true';
@@ -35,7 +34,6 @@ export default function Navbar() {
   useEffect(() => {
     checkAuth();
 
-    // Listen to custom window event triggered on login/logout
     window.addEventListener('auth-change', checkAuth);
     window.addEventListener('storage', checkAuth);
 
@@ -55,6 +53,22 @@ export default function Navbar() {
     navigate('/login');
   };
 
+  const handleOneClickDevBypass = () => {
+    localStorage.setItem('token', 'dev-secret-token-123');
+    localStorage.setItem('dev_bypass', 'true');
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        _id: 'dev-123',
+        name: 'Dev User (Dev Mode)',
+        email: 'dev@globetrotter.travel',
+        role: 'admin',
+      })
+    );
+    window.dispatchEvent(new Event('auth-change'));
+    navigate('/dashboard');
+  };
+
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -72,6 +86,17 @@ export default function Navbar() {
           </span>
         </div>
         <div className="flex items-center gap-4">
+          {!isAuthenticated && (
+            <button
+              type="button"
+              onClick={handleOneClickDevBypass}
+              className="flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-white bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/30 transition-colors cursor-pointer"
+              title="1-Click Developer Bypass Log In"
+            >
+              <Zap size={11} className="fill-amber-300" />
+              <span>Dev 1-Click Bypass</span>
+            </button>
+          )}
           <span className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
             <Globe size={12} className="text-pistachio-400" />
             ENG (USD)
@@ -82,7 +107,7 @@ export default function Navbar() {
       {/* Main Glass Navigation Bar */}
       <nav className="glass-panel border-b border-pistachio-100/80 px-6 sm:px-10 py-3.5 flex items-center justify-between transition-all">
         {/* Brand Logo */}
-        <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-3 group">
+        <Link to={isAuthenticated ? '/dashboard' : '/login'} className="flex items-center gap-3 group">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-pistachio-700 to-pistachio-500 flex items-center justify-center text-white shadow-soft group-hover:scale-105 transition-transform">
             <Compass size={22} className="animate-spin-slow" />
           </div>
@@ -129,16 +154,31 @@ export default function Navbar() {
           >
             ITINERARY BUILDER
           </Link>
+          <Link
+            to="/profile"
+            className={`text-sm font-semibold tracking-wide transition-colors ${
+              isActive('/profile')
+                ? 'text-pistachio-700 border-b-2 border-pistachio-600 pb-1 font-bold'
+                : 'text-slate-600 hover:text-pistachio-700'
+            }`}
+          >
+            PROFILE
+          </Link>
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
           {isAuthenticated ? (
             <>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-pistachio-50 rounded-xl border border-pistachio-200 text-xs font-semibold text-pistachio-900">
+              {/* Clickable Profile Badge */}
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 px-3 py-1.5 bg-pistachio-50 hover:bg-pistachio-100/80 rounded-xl border border-pistachio-200 text-xs font-semibold text-pistachio-900 transition-all cursor-pointer"
+                title="Go to User Profile"
+              >
                 <User size={14} className="text-pistachio-700" />
                 <span>{user?.name || 'Traveler'}</span>
-              </div>
+              </Link>
 
               <Link
                 to="/create"

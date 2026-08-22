@@ -102,5 +102,14 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To enforce strict application route authentication standards, provide a developer secret key for rapid testing, support complete session termination via Logout, and achieve visual UI consistency across the app.
 - **Git Status:** Verified locally with `npm run build` (0 errors). Ready to commit/push.
 
+### 12. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:**
+  1. Added a prominent **⚡ 1-Click Dev Bypass** button to both `Login.jsx` and `Registration.jsx` (and micro-bar in `Navbar.jsx`) that instantly authenticates developers with a single click and navigates directly to `/dashboard`.
+  2. Standardized the auth flow: unauthenticated users accessing `/` or protected pages are automatically directed to `/login`, where a clear redirect card guides them to `/register` if they need an account.
+  3. Made the User Badge in `Navbar.jsx` clickable to redirect authenticated users directly to the User Profile page (`/profile`). Added `PROFILE` link to center navigation.
+- **Why it was changed:** To satisfy the spec requirements for 1-click developer bypass, user profile navigation from dashboard/navbar, and standard unauthenticated redirection.
+- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly.
+
+
 
 

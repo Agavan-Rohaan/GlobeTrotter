@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { KeyRound, Sparkles, Compass } from 'lucide-react';
+import { KeyRound, Compass, Zap, UserPlus } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -23,21 +23,20 @@ export default function Login() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Helper to trigger developer secret key bypass
-  const handleDevBypass = () => {
+  // 1-Click Developer Bypass Function
+  const handleOneClickDevBypass = () => {
     localStorage.setItem('token', 'dev-secret-token-123');
     localStorage.setItem('dev_bypass', 'true');
     localStorage.setItem(
       'user',
       JSON.stringify({
         _id: 'dev-123',
-        name: 'Dev User (Secret Key)',
+        name: 'Dev User (Dev Mode)',
         email: 'dev@globetrotter.travel',
         role: 'admin',
       })
     );
 
-    // Notify window components (like Navbar) of auth state change
     window.dispatchEvent(new Event('auth-change'));
     navigate('/dashboard');
   };
@@ -47,14 +46,13 @@ export default function Login() {
     setLoading(true);
     setError(null);
 
-    // 1. Check for Developer Secret Key
+    // Check for DEV123 Secret Key in password field
     if (password === 'DEV123' || password === 'dev123') {
-      handleDevBypass();
+      handleOneClickDevBypass();
       setLoading(false);
       return;
     }
 
-    // 2. Regular Backend Authentication
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
@@ -72,10 +70,7 @@ export default function Login() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email }));
       
-      // Notify window components (like Navbar) of auth state change
       window.dispatchEvent(new Event('auth-change'));
-      
-      // Redirect to dashboard/trips
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'An unexpected error occurred');
@@ -85,7 +80,7 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = () => {
-    setError('Google Sign-In is configured. Use Email/Password or DEV123 secret key for developer bypass.');
+    setError('Google Sign-In is configured. Use Email/Password or 1-Click Dev Bypass.');
   };
 
   return (
@@ -104,7 +99,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-pistachio-800/80 text-pistachio-300 mb-2 border border-pistachio-700/50">
             <Compass size={26} className="animate-spin-slow" />
           </div>
-          <h1 className="text-2xl font-serif font-bold tracking-tight text-white">Welcome Back</h1>
+          <h1 className="text-2xl font-serif font-bold tracking-tight text-white">Log In</h1>
           <p className="text-xs font-script text-pistachio-300 mt-0.5 text-base">Personalized Travel Escapes</p>
         </div>
 
@@ -115,20 +110,15 @@ export default function Login() {
             </div>
           )}
 
-          {/* Dev Secret Key Shortcut Banner */}
-          <div className="bg-pistachio-50/80 border border-pistachio-200 rounded-2xl p-3.5 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-pistachio-900 text-xs font-medium">
-              <KeyRound size={15} className="text-pistachio-700 shrink-0" />
-              <span>Dev Secret Key: <code className="bg-pistachio-200 text-pistachio-950 px-1.5 py-0.5 rounded font-mono font-bold">DEV123</code></span>
-            </div>
-            <button
-              type="button"
-              onClick={handleDevBypass}
-              className="text-[11px] font-bold bg-pistachio-700 hover:bg-pistachio-800 text-white px-2.5 py-1 rounded-lg transition-all shadow-xs cursor-pointer"
-            >
-              Bypass ⚡
-            </button>
-          </div>
+          {/* Prominent 1-Click Developer Bypass Button */}
+          <button
+            type="button"
+            onClick={handleOneClickDevBypass}
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2.5 shadow-md transition-all transform hover:-translate-y-0.5 cursor-pointer text-sm"
+          >
+            <Zap size={18} className="fill-white" />
+            <span>⚡ 1-Click Dev Bypass (Instant Log In)</span>
+          </button>
 
           {/* Google Sign-In Button */}
           <button
@@ -192,12 +182,6 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="text-right">
-              <span className="text-xs text-pistachio-700 hover:text-pistachio-800 font-semibold cursor-pointer hover:underline">
-                Forgot password?
-              </span>
-            </div>
-
             <button
               type="submit"
               disabled={loading}
@@ -207,13 +191,15 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="text-center text-xs text-slate-600">
-            Don't have an account yet?{' '}
+          {/* Registration Redirect Card */}
+          <div className="bg-pistachio-50/70 border border-pistachio-200/80 rounded-2xl p-4 text-center flex flex-col gap-2">
+            <p className="text-xs text-slate-600 font-medium">Don't have an account yet?</p>
             <Link
               to="/register"
-              className="font-bold text-pistachio-800 hover:underline"
+              className="inline-flex items-center justify-center gap-1.5 text-xs font-bold bg-white text-pistachio-900 border border-pistachio-300 py-2.5 px-4 rounded-xl hover:bg-pistachio-100 transition-all shadow-xs"
             >
-              Sign up for free
+              <UserPlus size={14} className="text-pistachio-700" />
+              <span>Create New Account (Sign Up)</span>
             </Link>
           </div>
         </div>
