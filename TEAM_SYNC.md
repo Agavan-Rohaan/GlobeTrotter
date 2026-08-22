@@ -229,4 +229,16 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace hardcoded arrays and rate-limited web scrapers with real-world OpenStreetMap data flowing through a single, synced state array.
 - **Git Status:** Backend tested with automated test script (passed). Frontend verified with `npm run build` (0 errors). Ready to commit/push.
 
+### 25-b. 2026-08-22 | Developer/Agent Name: Done by Dev3
+- **What was done:** 
+  - Overhauled `CreateTrip.jsx` to hit `POST /api/trips` and sequentially hit `POST /api/destinations` to persist trip structure.
+  - Overhauled `ItineraryBuilder.jsx` to include a `Save & Exit` button that hits `POST /api/places` and `POST /api/events` to persist the timeline into MongoDB.
+  - Applied premium aesthetic updates (glassmorphism, micro-animations, lifted shadows) across `CreateTrip.jsx` and `ItineraryBuilder.jsx`.
+- **Why it was changed:** To elevate the app from a visual prototype into a fully functional, premium platform.
+- **Git Status:** Committed and pushed to `main`.
+
+### 26. 2026-08-22 | Developer/Agent Name: Done by Dev3
+- **What was done:** Refactored Screen 4: Create Trip (`frontend/src/pages/CreateTrip.jsx`).
+- **Why it was changed:** To adhere to simplified spec.
+- **Git Status:** Verified.
 
