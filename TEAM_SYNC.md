@@ -110,6 +110,9 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To satisfy the spec requirements for 1-click developer bypass, user profile navigation from dashboard/navbar, and standard unauthenticated redirection.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly.
 
-
-
-
+### 13. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** 
+  1. Configured the Dropbox `ACCESS_TOKEN` in the backend `.env` file to prepare for image upload functionality (Trip Covers, Profile Photos).
+  2. Installed `leaflet` and `react-leaflet` in the frontend and imported the required CSS.
+- **Why it was changed:** To finalize the setup for all required 3rd party integrations (Storage and Maps) before diving deep into complex component logic. Leaflet was chosen over Mapbox to keep the project 100% free with no API keys.
+- **Git Status:** Rebased and merged successfully. Pushed to `main`.
