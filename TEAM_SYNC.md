@@ -58,12 +58,27 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To prevent exposing the internal AI multi-agent workflow to the public or hackathon judges on the repository's front page.
 - **Git Status:** Committed and pushed to `main`.
 
-### 4. 2026-08-22 | Developer/Agent Name: Done by Dev1
+### 5. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Installed React Router, TailwindCSS v4, Recharts, and Lucide React. Set up baseline Vite config. Refactored `App.jsx` to include standard routing. Created the isolated `frontend/src/pages/Dev4/` directory. Scaffolded UI for Screen 9 (ItineraryView), Screen 10 (CommunityTab), and Screen 11 (CalendarView).
+- **Why it was changed:** To build out the frontend foundation required for all developers, and to strictly scaffold Dev4's assigned components in complete isolation without risking future merge conflicts.
+- **Git Status:** Committed and pushed to `main`.
+
+### 6. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Created empty placeholder React components for all of Dev1, Dev2, and Dev3's assigned screens in their respective isolated folders (`pages/Dev1/`, `pages/Dev2/`, `pages/Dev3/`). Updated `App.jsx` to import all placeholders and set up their routes.
+- **Why it was changed:** To provide a perfect starting point for the other developers. They can now simply open their assigned placeholder file and start coding their UI without needing to touch `App.jsx` or worry about routing conflicts.
+- **Git Status:** Committed and pushed to `main`.
+
+### 7. 2026-08-22 | Developer/Agent Name: Done by Dev4
+- **What was done:** Refactored `frontend/src/pages/` by moving all 13 components out of the `Dev1/`, `Dev2/`, `Dev3/`, and `Dev4/` subdirectories into the flat `pages/` directory. Deleted the subdirectories. Updated `App.jsx` to remove the `DevX` routing paths and removed the "DevX:" label from the navigation links.
+- **Why it was changed:** The isolated Dev folder structure was deemed unprofessional for the final repository. We will track assignments internally via communication rather than enforcing it in the file structure.
+- **Git Status:** Committed and pushed to `main`.
+
+### 8. 2026-08-22 | Developer/Agent Name: Done by Dev1
 - **What was done:**
   1. Built and integrated **Main Landing Page / Dashboard (Screen 3)** in `frontend/src/pages/Dashboard.jsx` with full backend compatibility (`GET /api/trips`, `GET /api/scrape/search`).
   2. Established global **Frontend Design System** with organic Pistachio & Cream luxury color palette (`#3f5e33`, `#4e773f`, `#fafaf7`), fancy typography (`Kaushan Script`, `Playfair Display`, `Plus Jakarta Sans`), and standard component tokens.
-  3. Created reusable global `frontend/src/components/Navbar.jsx` with glassmorphism styling, contact micro-header, and responsive navigation.
+  3. Created reusable global `frontend/src/components/Navbar.jsx` with glassmorphism styling, contact micro-header, and responsive navigation across all 13 screen routes in `App.jsx`.
   4. Created `frontend/src/services/api.js` Axios client with automated JWT interceptor.
   5. Documented design system standards in `ARCHITECTURE.md` (§5) and `PROJECT_CONTEXT.md` (§6) for team-wide UI synchronization.
 - **Why it was changed:** To implement Screen 3 from the hackathon spec & Excalidraw mockup with a wow-factor aesthetic while standardizing fonts and colors so Dev2, Dev3, and Dev4 build visually cohesive screens.
-- **Git Status:** Resolved merge cleanly in `TEAM_SYNC.md`. Verified with `npm run build` (0 errors). Ready to push.
+- **Git Status:** Resolved merge cleanly across `TEAM_SYNC.md` and `App.jsx`. Verified with `npm run build` (0 errors). Ready to push.
