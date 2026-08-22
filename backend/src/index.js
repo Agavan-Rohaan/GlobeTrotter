@@ -8,6 +8,7 @@ const scraperRoutes = require('./routes/scraperRoutes');
 const destinationRoutes = require('./routes/destinationRoutes');
 const placeRoutes = require('./routes/placeRoutes');
 const itineraryEventRoutes = require('./routes/itineraryEventRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use('/api/destinations', destinationRoutes);
 app.use('/api/places', placeRoutes);
 app.use('/api/events', itineraryEventRoutes);
 app.use('/api/scrape', scraperRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'API is running...' });

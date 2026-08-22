@@ -28,3 +28,18 @@ services:
           type: web
           name: globetrotter-backend
           envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: globetrotter-admin
+    env: static
+    plan: free
+    rootDir: admin
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: globetrotter-backend
+          envVarKey: RENDER_EXTERNAL_URL
