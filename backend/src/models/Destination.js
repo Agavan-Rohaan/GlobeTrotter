@@ -5,7 +5,7 @@ const destinationSchema = new mongoose.Schema({
   city: { type: String, required: true },
   country: { type: String },
   location: {
-    type: { type: String, enum: ['Point'], default: 'Point' },
+    type: { type: String, enum: ['Point'] },
     coordinates: { type: [Number] } // [longitude, latitude]
   },
   scrapedDescription: { type: String }, // Saved from our scraper
