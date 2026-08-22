@@ -10,7 +10,7 @@
 ## 2. The Technology Stack
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB Atlas (Mongoose ODM)
-- **Frontend (Traveler):** React.js (Vite), Tailwind CSS (planned), React Router
+- **Frontend (Traveler):** React.js (Vite), Tailwind CSS v4, React Router, Lucide Icons, Google Fonts
 - **Frontend (Admin):** React.js (Vite), Tailwind CSS v4
 - **Testing:** Jest + Supertest (Automated API tests)
 - **Scraping Engine:** `axios` + `cheerio` (Used for lightweight data enrichment without heavy Puppeteer overhead)
@@ -36,3 +36,23 @@ If you are running this project locally, you must set up the following `.env` fi
 - `backend/.env`: Needs `MONGO_URI`, `PORT=5000`, `JWT_SECRET`.
 - `frontend/.env`: Needs `VITE_API_URL=http://localhost:5000`.
 - `admin/.env`: Needs `VITE_API_URL=http://localhost:5000`.
+
+## 6. Frontend Design System & UI Consistency Guide (Shared Across All Collaborators)
+To ensure **100% visual consistency** across all screens (dev-01, dev-02, dev-03, dev-04):
+
+### Color Palette (Organic Pistachio, Sage & Cream)
+- **Primary Buttons / Accents:** `bg-pistachio-700` (`#3f5e33`), hover: `bg-pistachio-800` (`#354c2b`), text: `text-white`
+- **Secondary Badges / Accents:** `bg-pistachio-100` (`#e5ede0`), `text-pistachio-900` (`#2c3f25`), border: `border-pistachio-200`
+- **Page Canvas Background:** `bg-[#fafaf7]` (Warm natural cream)
+- **Cards & Containers:** `bg-white` with `border-pistachio-100` and `shadow-soft`
+- **Dark Hero / Navbar Accent:** `bg-pistachio-950` (`#152311`) and `bg-pistachio-900` (`#2c3f25`)
+
+### Typography System
+- **`font-script` (`Kaushan Script` / `Caveat`):** Expressive cursive accent words (*Inspiration*, *Curated Escapes*, *Your Adventures*).
+- **`font-serif` (`Playfair Display`):** Luxury page titles, section headings (`h1`, `h2`, `h3`), and card titles.
+- **`font-sans` (`Plus Jakarta Sans`):** Default for body copy, form inputs, buttons, and navigation.
+
+### Standard Component Tokens
+- **Primary Button:** `<button className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-semibold px-5 py-2.5 rounded-xl shadow-soft hover:shadow-lifted transition-all">Button</button>`
+- **Form Input:** `<input className="w-full px-4 py-2.5 bg-white border border-pistachio-200 rounded-xl text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-pistachio-500 focus:border-pistachio-500 outline-none transition-all" />`
+- **Container Card:** `<div className="bg-white rounded-2xl border border-pistachio-100 p-6 shadow-soft hover:shadow-lifted transition-all">...</div>`

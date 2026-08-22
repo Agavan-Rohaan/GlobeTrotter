@@ -52,3 +52,13 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Created `README.md` in the root directory. Added project mission, live demo URLs, tech stack, and instructions for local setup.
 - **Why it was changed:** The repository lacked a master README. This provides a professional front-page for the GitHub repository and helps onboard developers faster.
 - **Git Status:** Committed and pushed to `main`.
+
+### 4. 2026-08-22 | Developer/Agent Name: Done by Dev1
+- **What was done:**
+  1. Built and integrated **Main Landing Page / Dashboard (Screen 3)** in `frontend/src/pages/Dashboard.jsx` with full backend compatibility (`GET /api/trips`, `GET /api/scrape/search`).
+  2. Established global **Frontend Design System** with organic Pistachio & Cream luxury color palette (`#3f5e33`, `#4e773f`, `#fafaf7`), fancy typography (`Kaushan Script`, `Playfair Display`, `Plus Jakarta Sans`), and standard component tokens.
+  3. Created reusable global `frontend/src/components/Navbar.jsx` with glassmorphism styling, contact micro-header, and responsive navigation.
+  4. Created `frontend/src/services/api.js` Axios client with automated JWT interceptor.
+  5. Documented design system standards in `ARCHITECTURE.md` (§5) and `PROJECT_CONTEXT.md` (§6) for team-wide UI synchronization.
+- **Why it was changed:** To implement Screen 3 from the hackathon spec & Excalidraw mockup with a wow-factor aesthetic while standardizing fonts and colors so Dev2, Dev3, and Dev4 build visually cohesive screens.
+- **Git Status:** Resolved merge cleanly in `TEAM_SYNC.md`. Verified with `npm run build` (0 errors). Ready to push.
