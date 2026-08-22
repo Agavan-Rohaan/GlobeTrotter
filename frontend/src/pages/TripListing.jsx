@@ -6,6 +6,7 @@ import {
   CheckCircle2, AlertCircle, Share2, Eye
 } from 'lucide-react';
 import api from '../services/api';
+import { formatPrice } from '../utils/currency';
 
 // High-fidelity fallback trips if backend database is fresh or user not logged in
 const DEMO_TRIPS = [
@@ -108,7 +109,6 @@ export default function TripListing() {
       setDeleteConfirmId(null);
     } catch (err) {
       console.error('Failed to delete trip:', err);
-      // Still remove locally for smooth UX if demo
       setTrips((prev) => prev.filter((t) => t._id !== id));
       showToast('Trip removed from your dashboard');
       setDeleteConfirmId(null);
@@ -222,11 +222,8 @@ export default function TripListing() {
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* 1. HERO HEADER & QUICK SUMMARY STATS                         */}
-      {/* ============================================================ */}
+      {/* 1. HERO HEADER & QUICK SUMMARY STATS */}
       <section className="bg-gradient-to-br from-pistachio-950 via-pistachio-900 to-pistachio-950 text-white rounded-3xl p-8 sm:p-12 shadow-lifted relative overflow-hidden">
-        {/* Subtle decorative background circles */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-pistachio-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-pistachio-400/10 rounded-full blur-2xl pointer-events-none" />
 
@@ -234,7 +231,7 @@ export default function TripListing() {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 bg-pistachio-800/80 border border-pistachio-400/30 text-pistachio-200 px-3.5 py-1 rounded-full text-xs font-semibold tracking-widest uppercase backdrop-blur-xs">
               <Compass size={14} className="text-pistachio-300" />
-              Dev-01 Travel Workspace
+              Personal Travel Workspace
             </div>
             <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight text-white">
               My Travel Journeys
@@ -244,7 +241,6 @@ export default function TripListing() {
             </p>
           </div>
 
-          {/* Quick CTA */}
           <Link
             to="/create"
             className="inline-flex items-center justify-center gap-2 bg-pistachio-400 hover:bg-pistachio-300 text-pistachio-950 font-bold px-6 py-3.5 rounded-2xl shadow-soft hover:shadow-lifted transition-all transform hover:-translate-y-0.5 shrink-0"
@@ -278,12 +274,8 @@ export default function TripListing() {
         </div>
       </section>
 
-      {/* ============================================================ */}
-      {/* 2. SEARCH & STATUS FILTER BAR                                */}
-      {/* ============================================================ */}
+      {/* 2. SEARCH & STATUS FILTER BAR */}
       <section className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-soft border border-pistachio-100">
-        
-        {/* Status Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
           {['All', 'Ongoing', 'Upcoming', 'Completed'].map((tab) => (
             <button
@@ -300,7 +292,6 @@ export default function TripListing() {
           ))}
         </div>
 
-        {/* Search Input */}
         <div className="relative w-full sm:w-80">
           <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -313,9 +304,7 @@ export default function TripListing() {
         </div>
       </section>
 
-      {/* ============================================================ */}
-      {/* 3. TRIPS LISTING CARDS GRID                                  */}
-      {/* ============================================================ */}
+      {/* 3. TRIPS LISTING CARDS GRID */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8">
           {[1, 2, 3].map((i) => (
@@ -328,7 +317,6 @@ export default function TripListing() {
           ))}
         </div>
       ) : filteredTrips.length === 0 ? (
-        /* Empty State */
         <div className="bg-white rounded-3xl p-12 text-center border border-pistachio-100 shadow-soft max-w-xl mx-auto space-y-4 my-8">
           <div className="h-16 w-16 bg-pistachio-50 text-pistachio-700 rounded-2xl flex items-center justify-center mx-auto">
             <Globe size={32} />
@@ -350,7 +338,6 @@ export default function TripListing() {
           </div>
         </div>
       ) : (
-        /* Populated Trip Cards Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           {filteredTrips.map((trip) => {
             const status = getTripStatus(trip);
@@ -361,7 +348,6 @@ export default function TripListing() {
                 key={trip._id}
                 className="bg-white rounded-3xl overflow-hidden border border-pistachio-100 shadow-soft hover:shadow-lifted transition-all duration-300 flex flex-col group transform hover:-translate-y-1"
               >
-                {/* Cover Image with Status Overlay */}
                 <div className="relative h-56 w-full overflow-hidden bg-slate-800">
                   <img
                     src={trip.coverImage || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1000&auto=format&fit=crop'}
@@ -369,10 +355,8 @@ export default function TripListing() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
                   
-                  {/* Subtle Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                  {/* Status Badge */}
                   <div className="absolute top-4 left-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs ${
@@ -387,7 +371,6 @@ export default function TripListing() {
                     </span>
                   </div>
 
-                  {/* Delete Trigger */}
                   <button
                     type="button"
                     onClick={() => setDeleteConfirmId(trip._id)}
@@ -397,7 +380,6 @@ export default function TripListing() {
                     <Trash2 size={16} />
                   </button>
 
-                  {/* Date & Duration Pill at Bottom of Image */}
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white/90">
                     <span className="flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded-lg">
                       <Calendar size={13} className="text-pistachio-300" />
@@ -409,7 +391,6 @@ export default function TripListing() {
                   </div>
                 </div>
 
-                {/* Card Content Area */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
                   <div className="space-y-2.5">
                     <h3 className="text-xl font-bold font-serif text-slate-900 group-hover:text-pistachio-800 transition-colors line-clamp-1">
@@ -420,7 +401,6 @@ export default function TripListing() {
                     </p>
                   </div>
 
-                  {/* Multi-City Stops Badges */}
                   <div className="space-y-1.5 pt-2 border-t border-slate-100">
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Destinations</span>
                     <div className="flex flex-wrap gap-1.5">
@@ -440,9 +420,7 @@ export default function TripListing() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
-                    {/* Make Public / Share */}
                     <button
                       type="button"
                       onClick={() => handleToggleShare(trip._id, trip.isPublic)}
@@ -456,7 +434,6 @@ export default function TripListing() {
                       <Share2 size={14} />
                     </button>
 
-                    {/* Open Itinerary Builder (Dev-03) */}
                     <button
                       type="button"
                       onClick={() => navigate(`/itinerary-builder?tripId=${trip._id}`)}
@@ -466,7 +443,6 @@ export default function TripListing() {
                       <ArrowRight size={14} />
                     </button>
 
-                    {/* View Timeline / Itinerary (Dev-04) */}
                     <button
                       type="button"
                       onClick={() => navigate(`/itinerary/${trip._id}`)}
