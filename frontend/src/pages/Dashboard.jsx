@@ -152,7 +152,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="space-y-16 pb-20 -mx-6 sm:-mx-10 -mt-6">
+    <div className="space-y-16 pb-20 w-full">
       
       {/* ============================================================ */}
       {/* 1. HERO BANNER SECTION (Pistachio Nature & Brush Script)       */}
