@@ -3,11 +3,11 @@ import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Compass, Plus, Search, Calendar, MapPin, 
   Trash2, ArrowRight, Sparkles, X, Clock, DollarSign,
-  Utensils, Camera, Ticket, ShoppingBag, Music, Landmark, CheckCircle2, AlertCircle, Save, Loader2, Layers, Filter, Calculator, Globe
+  Utensils, Camera, Ticket, ShoppingBag, Music, Landmark, CheckCircle2, AlertCircle, Save, Loader2, Layers, Filter, Calculator, Globe, TrendingUp
 } from 'lucide-react';
 import api from '../services/api';
 import MapTracker from '../components/MapTracker';
-import { CURRENCIES, detectCurrency, formatPrice } from '../utils/currency';
+import { CURRENCIES, detectCurrency, formatPrice, getCountryPPP } from '../utils/currency';
 
 // Fallback places for offline/demo support if Overpass service is slow
 const FALLBACK_NEARBY_PLACES = [
@@ -284,7 +284,11 @@ export default function ItineraryBuilder() {
   };
   const tripDaysCount = calculateDaysCount();
 
-  // Pure Estimations Budget Generator (USD base)
+  // Purchasing Power Parity (PPP) 50-Country Estimation Index
+  const destCountryOrCity = tripData.destinations?.[0]?.country || tripData.destinations?.[0]?.city || 'France';
+  const pppInfo = getCountryPPP(destCountryOrCity);
+
+  // Pure Estimations Budget Generator with Country PPP Index Multiplier
   const styleMultipliers = {
     Budget: { stayPerNight: 45, foodPerDay: 20, transitPerDay: 15 },
     Comfort: { stayPerNight: 110, foodPerDay: 45, transitPerDay: 30 },
@@ -292,9 +296,11 @@ export default function ItineraryBuilder() {
   };
 
   const currentMultiplier = styleMultipliers[travelStyle] || styleMultipliers.Comfort;
-  const estimatedStayUSD = tripDaysCount * currentMultiplier.stayPerNight;
-  const estimatedFoodUSD = tripDaysCount * currentMultiplier.foodPerDay;
-  const estimatedTransitUSD = tripDaysCount * currentMultiplier.transitPerDay;
+  const pppFactor = pppInfo.factor || 1.0;
+
+  const estimatedStayUSD = Math.round(tripDaysCount * currentMultiplier.stayPerNight * pppFactor);
+  const estimatedFoodUSD = Math.round(tripDaysCount * currentMultiplier.foodPerDay * pppFactor);
+  const estimatedTransitUSD = Math.round(tripDaysCount * currentMultiplier.transitPerDay * pppFactor);
   const activitiesTotalUSD = stops.reduce((sum, s) => sum + (s.cost || 0), 0);
 
   const subtotalUSD = estimatedStayUSD + estimatedFoodUSD + estimatedTransitUSD + activitiesTotalUSD;
@@ -319,7 +325,7 @@ export default function ItineraryBuilder() {
             <div>
               <div className="inline-flex items-center gap-2 bg-pistachio-800/80 border border-pistachio-400/30 text-pistachio-200 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase mb-2">
                 <Compass size={14} className="text-pistachio-300" />
-                Screen 5 — Multi-City Itinerary Builder
+                Multi-City Itinerary Builder
               </div>
               <h1 className="text-2xl sm:text-4xl font-serif font-bold tracking-tight text-white">
                 {tripData.name}
@@ -756,6 +762,24 @@ export default function ItineraryBuilder() {
               </button>
             </div>
 
+            {/* Country Purchasing Power Parity (PPP) Badge */}
+            <div className="bg-pistachio-50 border border-pistachio-200/80 p-3.5 rounded-2xl flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <TrendingUp size={16} className="text-pistachio-700 shrink-0" />
+                <div>
+                  <span className="font-bold text-slate-800 block">
+                    {pppInfo.name} Purchasing Power Index: {pppFactor}x
+                  </span>
+                  <span className="text-slate-500">
+                    Category: {pppInfo.tier}
+                  </span>
+                </div>
+              </div>
+              <span className="bg-pistachio-700 text-white font-bold px-2.5 py-1 rounded-full text-[10px]">
+                {pppFactor < 1 ? 'Cost Effective' : 'Premium Tier'}
+              </span>
+            </div>
+
             {/* Travel Style Selector */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
@@ -781,12 +805,12 @@ export default function ItineraryBuilder() {
             {/* Estimations Breakdown List */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3 text-xs">
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
-                <span className="text-slate-600 font-medium">🏨 Accommodation ({tripDaysCount} Nights @ {formatPrice(currentMultiplier.stayPerNight, selectedCurrency)}/night):</span>
+                <span className="text-slate-600 font-medium">🏨 Accommodation ({tripDaysCount} Nights @ {formatPrice(Math.round(currentMultiplier.stayPerNight * pppFactor), selectedCurrency)}/night):</span>
                 <span className="font-bold text-slate-900">{formatPrice(estimatedStayUSD, selectedCurrency)}</span>
               </div>
 
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
-                <span className="text-slate-600 font-medium">🍽️ Food & Dining ({tripDaysCount} Days @ {formatPrice(currentMultiplier.foodPerDay, selectedCurrency)}/day):</span>
+                <span className="text-slate-600 font-medium">🍽️ Food & Dining ({tripDaysCount} Days @ {formatPrice(Math.round(currentMultiplier.foodPerDay * pppFactor), selectedCurrency)}/day):</span>
                 <span className="font-bold text-slate-900">{formatPrice(estimatedFoodUSD, selectedCurrency)}</span>
               </div>
 
