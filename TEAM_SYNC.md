@@ -134,3 +134,13 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **What was done:** Updated `PROJECT_CONTEXT.md` to reflect the newly created `/api/upload` route and explicitly note the requirement of `DROPBOX_ACCESS_TOKEN` in the `backend/.env` file.
 - **Why it was changed:** To ensure that all team members are fully aligned on the new architecture and environment variables following the concurrent pushes by Dev1, Dev2, Dev3, and Dev4.
 - **Git Status:** Committed and pushed to `main`.
+
+### 17. 2026-08-22 | Developer/Agent Name: Done by Dev1
+- **What was done:** 
+  1. Built and integrated **Screen 6: Trip Listing / My Trips (`frontend/src/pages/TripListing.jsx`)** with full backend integration (`GET /api/trips`, `DELETE /api/trips/:id`).
+  2. Implemented summary metrics header (Total Trips, Stops & Cities, Active, Upcoming), real-time search input, and dynamic status filter tabs (`All`, `Ongoing`, `Upcoming`, `Completed`).
+  3. Built rich travel trip cards with high-res cover photos, duration day counters, multi-city stop badges, and action buttons (`Open Builder →` linking to `/itinerary-builder?tripId=...`, `View` linking to `/itinerary/:id`, and confirmation modal for `Delete`).
+  4. Updated `frontend/src/App.jsx` to route `/trips` directly to `<TripListing />`.
+- **Why it was changed:** To replace the placeholder Screen 6 with a full-featured, pistachio-themed travel dashboard connecting user trips to Dev-03's builder and Dev-04's timeline view.
+- **Git Status:** Tested locally with zero errors. Staged and ready to commit/push.
+

@@ -72,7 +72,7 @@ function App() {
               path="/trips"
               element={
                 <ProtectedRoute>
-                  <div className="max-w-7xl mx-auto p-6"><MyTrips /></div>
+                  <div className="max-w-7xl mx-auto p-6"><TripListing /></div>
                 </ProtectedRoute>
               }
             />
