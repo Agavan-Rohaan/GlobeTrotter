@@ -98,13 +98,13 @@ export default function ItineraryBuilder() {
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesError, setPlacesError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [toastMessage, setToastMessage] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Fetch live backend trip if tripId param exists
   useEffect(() => {
@@ -193,10 +193,7 @@ export default function ItineraryBuilder() {
     showToast('Stop removed from itinerary');
   };
 
-<<<<<<< HEAD
-  // Filter Modal Activities against live nearbyPlaces
-  const displayedModalActivities = nearbyPlaces.filter((act) => {
-=======
+  // Save Itinerary to Backend
   const handleSaveItinerary = async () => {
     const tripId = searchParams.get('tripId');
     if (!tripId || tripId.startsWith('demo-')) {
@@ -205,25 +202,22 @@ export default function ItineraryBuilder() {
     }
     setIsSaving(true);
     try {
-      // Create Places and Events for each stop
       for (let i = 0; i < stops.length; i++) {
         const stop = stops[i];
         
-        // 1. Create Place
         const placeRes = await api.post('/places', {
           city_id: 'auto-generated',
           name: stop.title,
           description: stop.category,
           category: stop.category,
           location: { type: 'Point', coordinates: [stop.lng, stop.lat] },
-          costInfo: stop.cost.toString(),
-          duration: stop.duration,
-          images: [stop.image || 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&q=80']
+          costInfo: (stop.cost || 0).toString(),
+          duration: stop.duration || 'Visit time varies',
+          images: ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&q=80']
         });
         
         const place = placeRes.data;
 
-        // 2. Create Event
         const eventDate = new Date(tripData.startDate);
         eventDate.setDate(eventDate.getDate() + (stop.day - 1));
         
@@ -233,7 +227,7 @@ export default function ItineraryBuilder() {
           date: eventDate.toISOString(),
           startTime: '09:00',
           endTime: '11:00',
-          cost: stop.cost,
+          cost: stop.cost || 0,
           currency: 'USD'
         });
       }
@@ -247,9 +241,8 @@ export default function ItineraryBuilder() {
     }
   };
 
-  // Filter Modal Activities
-  const displayedModalActivities = POPULAR_ACTIVITIES.filter((act) => {
->>>>>>> 74191c1f2dab7990de49f93cefe0020ab426a5ae
+  // Filter Modal Activities against live nearbyPlaces
+  const displayedModalActivities = nearbyPlaces.filter((act) => {
     const matchesCategory = selectedCategory === 'All' || act.category === selectedCategory;
     const matchesSearch = !searchQuery || act.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -271,8 +264,7 @@ export default function ItineraryBuilder() {
       {/* ============================================================ */}
       {/* 1. TOP HEADER (Trip Context & Route Flow)                     */}
       {/* ============================================================ */}
-      <section className="glass-dark bg-pistachio-950/90 text-white rounded-3xl p-6 sm:p-8 shadow-lifted relative overflow-hidden border border-pistachio-800/50">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-pistachio-600/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+      <section className="bg-gradient-to-r from-pistachio-950 via-pistachio-900 to-pistachio-950 text-white rounded-3xl p-6 sm:p-8 shadow-lifted relative overflow-hidden">
         <div className="relative z-10 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -332,29 +324,29 @@ export default function ItineraryBuilder() {
         
         {/* LEFT COLUMN: TIMELINE & STOPS (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between glass-panel p-5 rounded-3xl shadow-lifted border border-pistachio-200/50 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 rounded-2xl shadow-soft border border-pistachio-100 gap-4">
             <div>
-              <h2 className="text-xl font-bold font-serif text-pistachio-950">Itinerary Timeline & Stops</h2>
-              <p className="text-slate-500 text-sm font-medium mt-1">Organize your activities and city stops day-by-day</p>
+              <h2 className="text-lg font-bold font-serif text-slate-900">Itinerary Timeline & Stops</h2>
+              <p className="text-slate-500 text-xs">Organize your activities and city stops day-by-day</p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-2 bg-pistachio-100 hover:bg-pistachio-200 text-pistachio-800 font-bold text-sm px-5 py-2.5 rounded-xl shadow-soft transition-all transform hover:-translate-y-0.5 cursor-pointer border border-pistachio-200"
+                className="inline-flex items-center gap-2 bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-soft transition-all cursor-pointer"
               >
                 <Plus size={16} className="stroke-[3]" />
-                <span>Add Stop</span>
+                <span>Add Stop / Activity</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleSaveItinerary}
                 disabled={isSaving}
-                className="inline-flex items-center gap-2 bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-lifted transition-all transform hover:-translate-y-0.5 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-soft transition-all cursor-pointer disabled:opacity-50"
               >
-                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} className="stroke-[3]" />}
+                {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                 <span>{isSaving ? 'Saving...' : 'Save & Exit'}</span>
               </button>
             </div>
@@ -381,50 +373,31 @@ export default function ItineraryBuilder() {
               stops.map((stop, index) => (
                 <div
                   key={stop.id}
-                  className="glass-panel bg-white/70 backdrop-blur-md rounded-3xl p-6 border border-pistachio-200/50 shadow-soft hover:shadow-lifted hover:border-pistachio-400 transition-all flex items-start justify-between gap-4 group transform hover:-translate-y-1"
+                  className="bg-white rounded-2xl p-5 border border-pistachio-100 shadow-soft hover:shadow-lifted transition-all flex items-start justify-between gap-4 group"
                 >
                   <div className="flex items-start gap-4">
-<<<<<<< HEAD
                     <div className="h-10 w-10 rounded-xl bg-pistachio-100 text-pistachio-900 font-bold flex items-center justify-center text-sm shrink-0 border border-pistachio-200">
-=======
-                    {/* Index Badge */}
-                    <div className="h-12 w-12 rounded-2xl bg-pistachio-700 text-white font-bold flex items-center justify-center text-lg shrink-0 shadow-inner">
->>>>>>> 74191c1f2dab7990de49f93cefe0020ab426a5ae
                       #{index + 1}
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2">
-<<<<<<< HEAD
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
                           {stop.category || 'Sightseeing'}
-=======
-                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-pistachio-100/80 text-pistachio-800 border border-pistachio-200/50">
-                          {stop.category || 'Activity'}
->>>>>>> 74191c1f2dab7990de49f93cefe0020ab426a5ae
                         </span>
-                        <span className="text-xs font-bold text-slate-500 flex items-center gap-1 uppercase tracking-wide">
-                          <MapPin size={12} className="text-pistachio-500" />
+                        <span className="text-xs font-semibold text-pistachio-700 flex items-center gap-1">
+                          <MapPin size={12} />
                           {stop.city}, {stop.country}
                         </span>
                       </div>
 
-                      <h3 className="font-bold font-serif text-slate-900 text-xl group-hover:text-pistachio-800 transition-colors">
+                      <h3 className="font-bold font-serif text-slate-900 text-base group-hover:text-pistachio-800 transition-colors">
                         {stop.title}
                       </h3>
 
-<<<<<<< HEAD
                       <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
                         <span className="flex items-center gap-1">
                           <Clock size={12} /> {stop.duration || 'Visit time varies'}
-=======
-                      <div className="flex items-center gap-5 text-sm text-slate-500 pt-2 font-medium">
-                        <span className="flex items-center gap-1.5">
-                          <Clock size={14} className="text-pistachio-600" /> {stop.duration || '2 hrs'}
-                        </span>
-                        <span className="flex items-center gap-1.5 text-pistachio-800 font-bold">
-                          <DollarSign size={14} className="text-pistachio-600" /> ${stop.cost || 0}
->>>>>>> 74191c1f2dab7990de49f93cefe0020ab426a5ae
                         </span>
                         {stop.cost > 0 && (
                           <span className="flex items-center gap-1 font-semibold text-pistachio-800">
@@ -438,10 +411,10 @@ export default function ItineraryBuilder() {
                   <button
                     type="button"
                     onClick={() => handleRemoveStop(stop.id)}
-                    className="p-3 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer opacity-0 group-hover:opacity-100 shadow-sm border border-transparent hover:border-red-100"
+                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                     title="Remove Stop"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               ))
@@ -451,29 +424,17 @@ export default function ItineraryBuilder() {
 
         {/* RIGHT COLUMN: INTERACTIVE MAP & ROUTING (5 Cols Sticky) */}
         <div className="lg:col-span-5 sticky top-24 space-y-4">
-          <div className="glass-panel p-5 rounded-3xl shadow-lifted border border-pistachio-200/50 flex items-center justify-between">
+          <div className="bg-white p-4 rounded-2xl shadow-soft border border-pistachio-100 flex items-center justify-between">
             <div>
-<<<<<<< HEAD
               <h2 className="text-base font-bold font-serif text-slate-900">Point-to-Point Route Map</h2>
               <p className="text-slate-500 text-xs">OpenStreetMap Leaflet markers & polyline route</p>
-=======
-              <h2 className="text-xl font-bold font-serif text-pistachio-950">Point-to-Point Map</h2>
-              <p className="text-slate-500 text-sm font-medium mt-0.5">Live Leaflet route tracking</p>
->>>>>>> 74191c1f2dab7990de49f93cefe0020ab426a5ae
             </div>
-            <span className="text-sm font-bold text-pistachio-900 bg-pistachio-100 px-3 py-1.5 rounded-xl border border-pistachio-200">
-              {stops.length} Stops
+            <span className="text-xs font-bold text-pistachio-800 bg-pistachio-100 px-2.5 py-1 rounded-full">
+              {stops.length} Markers
             </span>
           </div>
 
-<<<<<<< HEAD
           <MapTracker locations={stops} />
-=======
-          {/* OpenStreetMap Component */}
-          <div className="rounded-3xl overflow-hidden shadow-lifted border-4 border-white">
-            <MapTracker locations={stops} />
-          </div>
->>>>>>> 74191c1f2dab7990de49f93cefe0020ab426a5ae
         </div>
       </div>
 
