@@ -3,10 +3,11 @@ import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Compass, Plus, Search, Calendar, MapPin, 
   Trash2, ArrowRight, Sparkles, X, Clock, DollarSign,
-  Utensils, Camera, Ticket, ShoppingBag, Music, Landmark, CheckCircle2, AlertCircle, Save, Loader2, Layers, Filter
+  Utensils, Camera, Ticket, ShoppingBag, Music, Landmark, CheckCircle2, AlertCircle, Save, Loader2, Layers, Filter, Calculator, Globe
 } from 'lucide-react';
 import api from '../services/api';
 import MapTracker from '../components/MapTracker';
+import { CURRENCIES, detectCurrency, formatPrice } from '../utils/currency';
 
 // Fallback places for offline/demo support if Overpass service is slow
 const FALLBACK_NEARBY_PLACES = [
@@ -63,6 +64,10 @@ export default function ItineraryBuilder() {
     ]
   });
 
+  // Location/Nationality Currency Auto-Detection State
+  const initialCurrency = detectCurrency(tripData.destinations[0]?.country);
+  const [selectedCurrency, setSelectedCurrency] = useState(initialCurrency);
+
   const [stops, setStops] = useState([
     {
       id: 'stop-1',
@@ -85,6 +90,8 @@ export default function ItineraryBuilder() {
 
   // Modal State & Filter / Group By Controls
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [travelStyle, setTravelStyle] = useState('Comfort'); // 'Budget' | 'Comfort' | 'Luxury'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [groupBy, setGroupBy] = useState('None'); // 'None' | 'Category'
@@ -108,6 +115,9 @@ export default function ItineraryBuilder() {
           endDate: res.data.endDate || tripData.endDate,
           destinations: res.data.destinations || tripData.destinations
         });
+        if (res.data.destinations?.[0]?.country) {
+          setSelectedCurrency(detectCurrency(res.data.destinations[0].country));
+        }
       }
     } catch (err) {
       console.warn('Could not load backend trip context:', err.message);
@@ -168,7 +178,6 @@ export default function ItineraryBuilder() {
     showToast(`Added "${newStop.title}" to itinerary!`);
   };
 
-  // Helper to add custom typed activity from search box
   const handleAddCustomActivity = (title) => {
     if (!title.trim()) return;
 
@@ -231,7 +240,7 @@ export default function ItineraryBuilder() {
           startTime: '09:00',
           endTime: '11:00',
           cost: stop.cost || 0,
-          currency: 'USD'
+          currency: selectedCurrency
         });
       }
       showToast('Itinerary successfully saved to backend!');
@@ -249,18 +258,15 @@ export default function ItineraryBuilder() {
 
   const displayedModalActivities = nearbyPlaces.filter((act) => {
     const matchesCategory = selectedCategory === 'All' || act.category === selectedCategory;
-    
     if (!searchQuery.trim()) return matchesCategory;
 
     const q = searchQuery.toLowerCase().trim();
-    // If search term matches the destination city name (e.g. "surat"), show all city POIs!
     const matchesCity = primaryCityName && (primaryCityName.includes(q) || q.includes(primaryCityName));
     const matchesNameOrCat = act.name.toLowerCase().includes(q) || (act.category && act.category.toLowerCase().includes(q));
 
     return matchesCategory && (matchesNameOrCat || matchesCity);
   });
 
-  // Grouping helper
   const groupedActivities = displayedModalActivities.reduce((acc, item) => {
     const key = item.category || 'Sightseeing';
     if (!acc[key]) acc[key] = [];
@@ -268,7 +274,32 @@ export default function ItineraryBuilder() {
     return acc;
   }, {});
 
-  const totalCost = stops.reduce((sum, s) => sum + (s.cost || 0), 0);
+  // Trip Days Calculation
+  const calculateDaysCount = () => {
+    if (!tripData.startDate || !tripData.endDate) return 7;
+    const s = new Date(tripData.startDate);
+    const e = new Date(tripData.endDate);
+    const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1;
+    return diff > 0 ? diff : 7;
+  };
+  const tripDaysCount = calculateDaysCount();
+
+  // Pure Estimations Budget Generator (USD base)
+  const styleMultipliers = {
+    Budget: { stayPerNight: 45, foodPerDay: 20, transitPerDay: 15 },
+    Comfort: { stayPerNight: 110, foodPerDay: 45, transitPerDay: 30 },
+    Luxury: { stayPerNight: 320, foodPerDay: 120, transitPerDay: 85 }
+  };
+
+  const currentMultiplier = styleMultipliers[travelStyle] || styleMultipliers.Comfort;
+  const estimatedStayUSD = tripDaysCount * currentMultiplier.stayPerNight;
+  const estimatedFoodUSD = tripDaysCount * currentMultiplier.foodPerDay;
+  const estimatedTransitUSD = tripDaysCount * currentMultiplier.transitPerDay;
+  const activitiesTotalUSD = stops.reduce((sum, s) => sum + (s.cost || 0), 0);
+
+  const subtotalUSD = estimatedStayUSD + estimatedFoodUSD + estimatedTransitUSD + activitiesTotalUSD;
+  const bufferUSD = Math.round(subtotalUSD * 0.10);
+  const grandTotalUSD = subtotalUSD + bufferUSD;
 
   return (
     <div className="space-y-8 pb-20 w-full max-w-7xl mx-auto">
@@ -281,7 +312,7 @@ export default function ItineraryBuilder() {
         </div>
       )}
 
-      {/* 1. TOP HEADER (Trip Context & Route Flow) */}
+      {/* 1. TOP HEADER (Trip Context, Currency Selector & Route Flow) */}
       <section className="bg-gradient-to-r from-pistachio-950 via-pistachio-900 to-pistachio-950 text-white rounded-3xl p-6 sm:p-8 shadow-lifted relative overflow-hidden">
         <div className="relative z-10 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -295,15 +326,44 @@ export default function ItineraryBuilder() {
               </h1>
               <p className="text-pistachio-200 text-sm font-sans flex items-center gap-2 mt-1">
                 <Calendar size={14} className="text-pistachio-400" />
-                <span>{tripData.startDate} – {tripData.endDate}</span>
+                <span>{tripData.startDate} – {tripData.endDate} ({tripDaysCount} Days)</span>
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="bg-pistachio-900/80 border border-pistachio-700/50 px-4 py-2 rounded-2xl text-center">
-                <span className="text-[10px] uppercase font-bold text-pistachio-300 block">Est. Budget</span>
-                <span className="text-lg font-bold font-serif text-white">${totalCost}</span>
+            {/* Quick Metrics & Currency Controls */}
+            <div className="flex flex-wrap items-center gap-3">
+              
+              {/* Currency Selector */}
+              <div className="bg-pistachio-900/90 border border-pistachio-700/60 px-3 py-1.5 rounded-2xl flex items-center gap-2 text-xs">
+                <Globe size={14} className="text-pistachio-300" />
+                <span className="font-semibold text-pistachio-300">Currency:</span>
+                <select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  className="bg-transparent font-bold text-white focus:outline-none cursor-pointer"
+                >
+                  {Object.values(CURRENCIES).map((c) => (
+                    <option key={c.code} value={c.code} className="text-slate-900 font-sans">
+                      {c.symbol} {c.code}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              {/* Budget Estimator Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsBudgetModalOpen(true)}
+                className="bg-pistachio-800/90 hover:bg-pistachio-700 border border-pistachio-600 px-4 py-2 rounded-2xl text-center cursor-pointer transition-all flex items-center gap-2"
+                title="Open Live Budget Calculator"
+              >
+                <Calculator size={16} className="text-pistachio-300" />
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-pistachio-300 block">Est. Budget</span>
+                  <span className="text-lg font-bold font-serif text-white">{formatPrice(grandTotalUSD, selectedCurrency)}</span>
+                </div>
+              </button>
+
               <div className="bg-pistachio-900/80 border border-pistachio-700/50 px-4 py-2 rounded-2xl text-center">
                 <span className="text-[10px] uppercase font-bold text-pistachio-300 block">Total Stops</span>
                 <span className="text-lg font-bold font-serif text-white">{stops.length}</span>
@@ -347,11 +407,20 @@ export default function ItineraryBuilder() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={() => setIsBudgetModalOpen(true)}
+                className="inline-flex items-center gap-1.5 bg-pistachio-100 hover:bg-pistachio-200 text-pistachio-800 font-bold text-xs px-3.5 py-2.5 rounded-xl transition-all cursor-pointer border border-pistachio-200"
+              >
+                <Calculator size={14} />
+                <span>Calculate Budget</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setIsModalOpen(true)}
                 className="inline-flex items-center gap-2 bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-soft transition-all cursor-pointer"
               >
                 <Plus size={16} className="stroke-[3]" />
-                <span>Add Stop / Activity</span>
+                <span>Add Stop</span>
               </button>
 
               <button
@@ -414,7 +483,7 @@ export default function ItineraryBuilder() {
                         </span>
                         {stop.cost > 0 && (
                           <span className="flex items-center gap-1 font-semibold text-pistachio-800">
-                            <DollarSign size={12} /> ${stop.cost}
+                            {formatPrice(stop.cost, selectedCurrency)}
                           </span>
                         )}
                       </div>
@@ -456,7 +525,6 @@ export default function ItineraryBuilder() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-pistachio-100 max-h-[90vh] flex flex-col space-y-5 animate-scale-up">
             
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-xl font-bold font-serif text-slate-900 flex items-center gap-2">
@@ -476,7 +544,6 @@ export default function ItineraryBuilder() {
               </button>
             </div>
 
-            {/* Search Bar & Group By Selector */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -489,7 +556,6 @@ export default function ItineraryBuilder() {
                 />
               </div>
 
-              {/* Group By Control */}
               <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shrink-0 text-xs">
                 <Layers size={14} className="text-slate-500" />
                 <span className="font-semibold text-slate-600">Group By:</span>
@@ -504,7 +570,6 @@ export default function ItineraryBuilder() {
               </div>
             </div>
 
-            {/* Category Filter Chips */}
             <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
               <span className="text-slate-400 font-semibold flex items-center gap-1">
                 <Filter size={12} /> Filter:
@@ -524,7 +589,6 @@ export default function ItineraryBuilder() {
               ))}
             </div>
 
-            {/* Custom Activity Action Card if user typed a search term */}
             {searchQuery.trim().length > 0 && (
               <div className="bg-pistachio-50 border border-pistachio-200 p-3 rounded-2xl flex items-center justify-between gap-3">
                 <div className="text-xs">
@@ -542,7 +606,6 @@ export default function ItineraryBuilder() {
               </div>
             )}
 
-            {/* Modal Content Scroll Area */}
             <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pr-1 max-h-[380px]">
               
               {placesLoading && (
@@ -570,7 +633,6 @@ export default function ItineraryBuilder() {
                 </div>
               )}
 
-              {/* UNGROUPED VIEW */}
               {!placesLoading && !placesError && groupBy === 'None' && displayedModalActivities.length > 0 && (
                 <div className="space-y-3">
                   {displayedModalActivities.map((item) => (
@@ -612,7 +674,6 @@ export default function ItineraryBuilder() {
                 </div>
               )}
 
-              {/* GROUPED BY CATEGORY VIEW */}
               {!placesLoading && !placesError && groupBy === 'Category' && displayedModalActivities.length > 0 && (
                 <div className="space-y-6">
                   {Object.keys(groupedActivities).map((catName) => (
@@ -658,7 +719,6 @@ export default function ItineraryBuilder() {
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-3 border-t border-slate-100 flex justify-end">
               <button
                 type="button"
@@ -666,6 +726,104 @@ export default function ItineraryBuilder() {
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer"
               >
                 Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. BUDGET CALCULATOR ESTIMATION MODAL OVERLAY */}
+      {isBudgetModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl border border-pistachio-100 flex flex-col space-y-6 animate-scale-up">
+            
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-xl font-bold font-serif text-slate-900 flex items-center gap-2">
+                  <Calculator size={20} className="text-pistachio-700" />
+                  Trip Budget Estimator
+                </h3>
+                <p className="text-slate-500 text-xs mt-0.5">
+                  Calculated based on {tripDaysCount} days stay in {tripData.destinations?.[0]?.city || 'Destination'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsBudgetModalOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Travel Style Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                Select Travel Style Multiplier
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {['Budget', 'Comfort', 'Luxury'].map((style) => (
+                  <button
+                    key={style}
+                    onClick={() => setTravelStyle(style)}
+                    className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      travelStyle === style
+                        ? 'bg-pistachio-700 text-white shadow-soft'
+                        : 'bg-slate-100 text-slate-700 hover:bg-pistachio-50'
+                    }`}
+                  >
+                    {style} {style === 'Budget' ? '🎒' : style === 'Comfort' ? '🏨' : '💎'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Estimations Breakdown List */}
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-600 font-medium">🏨 Accommodation ({tripDaysCount} Nights @ {formatPrice(currentMultiplier.stayPerNight, selectedCurrency)}/night):</span>
+                <span className="font-bold text-slate-900">{formatPrice(estimatedStayUSD, selectedCurrency)}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-600 font-medium">🍽️ Food & Dining ({tripDaysCount} Days @ {formatPrice(currentMultiplier.foodPerDay, selectedCurrency)}/day):</span>
+                <span className="font-bold text-slate-900">{formatPrice(estimatedFoodUSD, selectedCurrency)}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-600 font-medium">🚕 Local Transit & Transfers:</span>
+                <span className="font-bold text-slate-900">{formatPrice(estimatedTransitUSD, selectedCurrency)}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-600 font-medium">🎟️ Timeline Activities ({stops.length} Stops):</span>
+                <span className="font-bold text-slate-900">{formatPrice(activitiesTotalUSD, selectedCurrency)}</span>
+              </div>
+
+              <div className="flex justify-between items-center py-1 text-slate-500">
+                <span>🛡️ Emergency Buffer (10%):</span>
+                <span className="font-semibold">{formatPrice(bufferUSD, selectedCurrency)}</span>
+              </div>
+            </div>
+
+            {/* Total Calculation Highlight */}
+            <div className="bg-gradient-to-r from-pistachio-900 to-pistachio-950 p-5 rounded-2xl text-white flex items-center justify-between shadow-soft">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-pistachio-300 block tracking-wider">Estimated Total Trip Budget</span>
+                <span className="text-2xl font-bold font-serif">{formatPrice(grandTotalUSD, selectedCurrency)}</span>
+              </div>
+              <span className="text-xs bg-pistachio-800 border border-pistachio-600 px-3 py-1.5 rounded-full font-semibold text-pistachio-200">
+                {selectedCurrency} Auto-Detected
+              </span>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsBudgetModalOpen(false)}
+                className="bg-pistachio-700 hover:bg-pistachio-800 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-soft"
+              >
+                Apply & Close
               </button>
             </div>
           </div>
