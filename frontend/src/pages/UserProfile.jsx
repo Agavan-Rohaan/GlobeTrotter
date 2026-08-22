@@ -8,27 +8,29 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+const DEFAULT_DEV_USER = {
+  name: 'MeetRaval91',
+  email: 'hetalraval1209@gmail.com',
+  profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+  preferences: {
+    language: 'en',
+    currency: 'USD'
+  }
+};
+
 export default function UserProfile() {
   const navigate = useNavigate();
 
   // User state
-  const [user, setUser] = useState({
-    name: '',
-    email: '',
-    profilePhoto: '',
-    preferences: {
-      language: 'en',
-      currency: 'USD'
-    }
-  });
+  const [user, setUser] = useState(DEFAULT_DEV_USER);
 
   // Editing state
   const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhoto, setEditPhoto] = useState('');
-  const [editLanguage, setEditLanguage] = useState('en');
-  const [editCurrency, setEditCurrency] = useState('USD');
+  const [editName, setEditName] = useState(DEFAULT_DEV_USER.name);
+  const [editEmail, setEditEmail] = useState(DEFAULT_DEV_USER.email);
+  const [editPhoto, setEditPhoto] = useState(DEFAULT_DEV_USER.profilePhoto);
+  const [editLanguage, setEditLanguage] = useState(DEFAULT_DEV_USER.preferences.language);
+  const [editCurrency, setEditCurrency] = useState(DEFAULT_DEV_USER.preferences.currency);
 
   // Loading & Feedback
   const [loading, setLoading] = useState(true);
@@ -59,16 +61,26 @@ export default function UserProfile() {
     if (storedUser) {
       try {
         const parsed = JSON.parse(storedUser);
-        setUser(parsed);
-        setEditName(parsed.name || '');
-        setEditEmail(parsed.email || '');
-        setEditPhoto(parsed.profilePhoto || '');
-        setEditLanguage(parsed.preferences?.language || 'en');
-        setEditCurrency(parsed.preferences?.currency || 'USD');
+        const merged = {
+          name: parsed.name || DEFAULT_DEV_USER.name,
+          email: parsed.email || DEFAULT_DEV_USER.email,
+          profilePhoto: parsed.profilePhoto || DEFAULT_DEV_USER.profilePhoto,
+          preferences: {
+            language: parsed.preferences?.language || DEFAULT_DEV_USER.preferences.language,
+            currency: parsed.preferences?.currency || DEFAULT_DEV_USER.preferences.currency
+          }
+        };
+        setUser(merged);
+        setEditName(merged.name);
+        setEditEmail(merged.email);
+        setEditPhoto(merged.profilePhoto);
+        setEditLanguage(merged.preferences.language);
+        setEditCurrency(merged.preferences.currency);
       } catch (err) {
         console.error("Failed to parse stored user", err);
       }
     }
+
 
     if (token && token !== 'dev-secret-token-123') {
       try {

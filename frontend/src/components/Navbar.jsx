@@ -54,20 +54,24 @@ export default function Navbar() {
   };
 
   const handleOneClickDevBypass = () => {
+    const devUser = {
+      _id: 'dev-123',
+      name: 'MeetRaval91',
+      email: 'hetalraval1209@gmail.com',
+      profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+      role: 'admin',
+      preferences: {
+        language: 'en',
+        currency: 'USD'
+      }
+    };
     localStorage.setItem('token', 'dev-secret-token-123');
     localStorage.setItem('dev_bypass', 'true');
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
-        _id: 'dev-123',
-        name: 'MeetRaval91',
-        email: 'hetalraval1209@gmail.com',
-        role: 'admin',
-      })
-    );
+    localStorage.setItem('user', JSON.stringify(devUser));
     window.dispatchEvent(new Event('auth-change'));
     navigate('/dashboard');
   };
+
 
   const isActive = (path) => location.pathname === path;
 

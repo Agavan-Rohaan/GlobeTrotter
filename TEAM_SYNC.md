@@ -158,4 +158,12 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** To replace static dev placeholders with an interactive User Profile Avatar button linking to Screen 12 under `MeetRaval91`.
 - **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
 
+### 20. 2026-08-22 | Developer/Agent Name: Done by Dev2
+- **What was done:** 
+  1. Aligned Dev Mode profile data with registered user profiles by populating complete developer identity (`MeetRaval91`, `hetalraval1209@gmail.com`, avatar photo URL, language & currency preferences) in 1-Click Dev Bypass across `Navbar.jsx`, `Login.jsx`, and `Registration.jsx`.
+  2. Added fallback defaults in `UserProfile.jsx` so that developer mode renders the exact same complete experience (Preplanned Trips, Previous Trips, Settings editing, Dropbox photo link input, Saved Destinations) as a live registered user.
+- **Why it was changed:** To ensure developer testing mode provides 100% parity with live user profiles on Screen 12.
+- **Git Status:** Verified with `npm run build` (0 errors). Staged and committed cleanly under `MeetRaval91`.
+
+
 
