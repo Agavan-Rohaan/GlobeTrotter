@@ -73,8 +73,18 @@ Before the frontend work was divided, **The Backend Architecture was 100% comple
 - **Why it was changed:** The isolated Dev folder structure was deemed unprofessional for the final repository. We will track assignments internally via communication rather than enforcing it in the file structure.
 - **Git Status:** Committed and pushed to `main`.
 
-### 8. 2026-08-22 | Developer/Agent Name: Done by Dev2
+### 8. 2026-08-22 | Developer/Agent Name: Done by Dev1
+- **What was done:**
+  1. Built and integrated **Main Landing Page / Dashboard (Screen 3)** in `frontend/src/pages/Dashboard.jsx` with full backend compatibility (`GET /api/trips`, `GET /api/scrape/search`).
+  2. Established global **Frontend Design System** with organic Pistachio & Cream luxury color palette (`#3f5e33`, `#4e773f`, `#fafaf7`), fancy typography (`Kaushan Script`, `Playfair Display`, `Plus Jakarta Sans`), and standard component tokens.
+  3. Created reusable global `frontend/src/components/Navbar.jsx` with glassmorphism styling, contact micro-header, and responsive navigation across all 13 screen routes in `App.jsx`.
+  4. Created `frontend/src/services/api.js` Axios client with automated JWT interceptor.
+  5. Documented design system standards in `ARCHITECTURE.md` (§5) and `PROJECT_CONTEXT.md` (§6) for team-wide UI synchronization.
+- **Why it was changed:** To implement Screen 3 from the hackathon spec & Excalidraw mockup with a wow-factor aesthetic while standardizing fonts and colors so Dev2, Dev3, and Dev4 build visually cohesive screens.
+- **Git Status:** Resolved merge cleanly across `TEAM_SYNC.md` and `App.jsx`. Verified with `npm run build` (0 errors). Ready to push.
+
+### 9. 2026-08-22 | Developer/Agent Name: Done by Dev2
 - **What was done:** Fully built out `frontend/src/pages/Login.jsx` and `frontend/src/pages/Registration.jsx` authentication components. Integrated `VITE_API_URL` environment configuration, connected backend authentication routes (`POST /api/auth/login` and `POST /api/auth/register`), added JWT token persistence (`localStorage`), added password visibility toggles, integrated React Router navigation (`useNavigate`, `Link`), and updated `frontend/src/pages/Login.jsx` and `frontend/src/pages/Registration.jsx`.
 - **Why it was changed:** To replace placeholder screens with complete, production-ready Login and Registration flows connected directly to the Express backend API following the flat `pages/` refactoring.
-- **Git Status:** Completed locally. Ready for commit/push.
+- **Git Status:** Completed locally and merged cleanly with Dev1's global design system updates.
 
